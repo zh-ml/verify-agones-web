@@ -13,6 +13,7 @@ import DeploymentPage from './pages/Deployment';
 import DashboardPage from './pages/Dashboard';
 import ProfilePage from './pages/Profile';
 import CartPage from './pages/Cart';
+import GamesPage from './pages/Games';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Layout><HomePage /></Layout>} />
+            <Route path="/games" element={<Layout><GamesPage /></Layout>} />
             <Route path="/games/:id" element={<Layout><GameDetailPage /></Layout>} />
             <Route path="/deployment/:id" element={<Layout><DeploymentPage /></Layout>} />
             <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />

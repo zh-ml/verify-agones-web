@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import { Tabs, Card, Button, Tag, Statistic, Row, Col, Table, Badge, Space, Dropdown, Menu, Progress, Alert, Empty } from 'antd';
-import { PlayCircleOutlined, PauseCircleOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, DownOutlined, EyeOutlined, EditOutlined, CloudUploadOutlined, CloudDownloadOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, PauseCircleOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, DownOutlined, EyeOutlined, EditOutlined, CloudUploadOutlined, CloudDownloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -94,6 +94,20 @@ const EmptyStateContainer = styled.div`
   padding: ${theme.space['2xl']} 0;
 `;
 
+// 游戏库样式已移至样式文件
+
+const GameLibraryHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${theme.space.lg};
+`;
+
+const GameLibraryTitle = styled.h3`
+  font-size: ${theme.fontSizes.xl};
+  margin: 0;
+`;
+
 const TableActions = styled.div`
   display: flex;
   justify-content: space-between;
@@ -114,6 +128,66 @@ const SearchInput = styled.input`
     box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
   }
 `;
+
+// 模拟用户已购买的游戏数据
+interface UserGameData {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  price: number;
+  discountPrice?: number;
+  rating: number;
+  tags: string[];
+  releaseDate: string;
+  purchaseDate: string;
+  playTime: number;
+  lastPlayed: string;
+}
+
+const userGames: UserGameData[] = [
+  {
+    id: '1',
+    title: 'Minecraft',
+    description: '探索无限世界，建造从简单的房子到宏伟的城堡的一切事物。',
+    imageUrl: 'https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_2023-Trails_and_Tales_1170x500.jpg',
+    price: 99,
+    rating: 4.8,
+    tags: ['沙盒', '生存', '多人'],
+    releaseDate: '2011-11-18',
+    purchaseDate: '2023-01-15',
+    playTime: 120,
+    lastPlayed: '2023-05-20'
+  },
+  {
+    id: '3',
+    title: 'Stardew Valley',
+    description: '继承你祖父的旧农场，开始你的新生活。学习如何生活在土地上，种植庄稼，饲养动物，与当地社区交往。',
+    imageUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/413150/header.jpg',
+    price: 60,
+    discountPrice: 48,
+    rating: 4.9,
+    tags: ['模拟', '角色扮演', '农场'],
+    releaseDate: '2016-02-26',
+    purchaseDate: '2023-02-10',
+    playTime: 85,
+    lastPlayed: '2023-05-15'
+  },
+  {
+    id: '7',
+    title: 'Elden Ring',
+    description: '一款由FromSoftware开发的动作角色扮演游戏，玩家将在一个广阔的世界中探索，与强大的敌人战斗。',
+    imageUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/header.jpg',
+    price: 298,
+    discountPrice: 238,
+    rating: 4.8,
+    tags: ['动作', '角色扮演', '开放世界'],
+    releaseDate: '2022-02-25',
+    purchaseDate: '2023-03-05',
+    playTime: 60,
+    lastPlayed: '2023-05-10'
+  },
+];
 
 // 模拟服务器数据
 interface ServerData {
@@ -791,6 +865,54 @@ const DashboardPage: React.FC = () => {
     },
     {
       key: '3',
+      label: '游戏库',
+      children: (
+        <>
+          <GameLibraryHeader>
+            <GameLibraryTitle>我的游戏</GameLibraryTitle>
+            <Button type="primary" icon={<DownloadOutlined />}>
+              <Link to="/games">获取更多游戏</Link>
+            </Button>
+          </GameLibraryHeader>
+          
+          {userGames.length > 0 ? (
+            <Row gutter={[24, 24]}>
+              {userGames.map(game => (
+                <Col xs={24} sm={12} md={8} lg={6} key={game.id}>
+                  <Card
+                    hoverable
+                    cover={<img alt={game.title} src={game.imageUrl} />}
+                  >
+                    <Card.Meta 
+                      title={game.title}
+                      description={
+                        <>
+                          <div>{game.tags.join(' · ')}</div>
+                          <div>游戏时间: {game.playTime}小时</div>
+                          <div>最后游玩: {game.lastPlayed}</div>
+                        </>
+                      }
+                    />
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <EmptyStateContainer>
+              <Empty 
+                description="您的游戏库中还没有游戏"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+              <Button type="primary" style={{ marginTop: theme.space.md }}>
+                <Link to="/games">浏览游戏</Link>
+              </Button>
+            </EmptyStateContainer>
+          )}
+        </>
+      ),
+    },
+    {
+      key: '4',
       label: '账单',
       children: (
         <>
