@@ -7,6 +7,20 @@
     <title>第九游戏 - 游戏部署与销售平台</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <script>
+      // 处理从404.html重定向过来的请求
+      (function() {
+        const redirect = sessionStorage.getItem('redirect_path');
+        if (redirect && redirect !== window.location.pathname + window.location.search + window.location.hash) {
+          sessionStorage.removeItem('redirect_path');
+          // 只有当前路径与重定向路径不同时才进行重定向
+          if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+            const newPath = redirect.startsWith('/') ? redirect : '/' + redirect;
+            history.replaceState(null, null, newPath);
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

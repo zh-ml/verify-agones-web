@@ -14,6 +14,11 @@ import DashboardPage from './pages/Dashboard';
 import ProfilePage from './pages/Profile';
 import CartPage from './pages/Cart';
 import GamesPage from './pages/Games';
+import AboutPage from './pages/About';
+import ContactPage from './pages/Contact';
+import PrivacyPage from './pages/Privacy';
+import TermsPage from './pages/Terms';
+import CareersPage from './pages/Careers';
 
 function App() {
   return (
@@ -29,6 +34,11 @@ function App() {
             <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
             <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
             <Route path="/cart" element={<Layout><CartPage /></Layout>} />
+            <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+            <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+            <Route path="/privacy" element={<Layout><PrivacyPage /></Layout>} />
+            <Route path="/terms" element={<Layout><TermsPage /></Layout>} />
+            <Route path="/careers" element={<Layout><CareersPage /></Layout>} />
           </Routes>
         </Router>
       </CartProvider>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面未找到 - TheNinth</title>
+  <script>
+    // 单页应用路由处理
+    const segment = 1;
+    const l = window.location;
+    const origin = l.origin || (l.protocol + '//' + l.host);
+    const path = l.pathname.split('/').slice(0, 1 + segment).join('/');
+    const redirectTo = origin + path + '/?p=/' + l.pathname.slice(path.length)
+      .split('/')
+      .slice(1)
+      .join('/') + (l.search ? '&q=' + l.search.slice(1) : '') + l.hash;
+    sessionStorage.setItem('redirect_path', l.pathname + l.search + l.hash);
+    window.location.replace(redirectTo);
+  </script>
+</head>
+<body>
+  <h1>页面加载中...</h1>
+</body>
+</html>
