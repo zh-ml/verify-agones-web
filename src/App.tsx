@@ -5,6 +5,7 @@ import { theme } from './styles/theme';
 import GlobalStyles from './styles/GlobalStyles';
 import Layout from './components/Layout';
 import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 // 页面组件
 import HomePage from './pages/Home';
@@ -20,30 +21,35 @@ import ContactPage from './pages/Contact';
 import PrivacyPage from './pages/Privacy';
 import TermsPage from './pages/Terms';
 import CareersPage from './pages/Careers';
+import LoginPage from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
-      <CartProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Layout><HomePage /></Layout>} />
-            <Route path="/games" element={<Layout><GamesPage /></Layout>} />
-            <Route path="/games/:id" element={<Layout><GameDetailPage /></Layout>} />
-            <Route path="/game-purchase/:id" element={<Layout><GamePurchasePage /></Layout>} />
-            <Route path="/deployment/:id" element={<Layout><DeploymentPage /></Layout>} />
-            <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
-            <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
-            <Route path="/cart" element={<Layout><CartPage /></Layout>} />
-            <Route path="/about" element={<Layout><AboutPage /></Layout>} />
-            <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
-            <Route path="/privacy" element={<Layout><PrivacyPage /></Layout>} />
-            <Route path="/terms" element={<Layout><TermsPage /></Layout>} />
-            <Route path="/careers" element={<Layout><CareersPage /></Layout>} />
-          </Routes>
-        </Router>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Layout><HomePage /></Layout>} />
+              <Route path="/games" element={<Layout><GamesPage /></Layout>} />
+              <Route path="/games/:id" element={<Layout><GameDetailPage /></Layout>} />
+              <Route path="/game-purchase/:id" element={<Layout><GamePurchasePage /></Layout>} />
+              <Route path="/deployment/:id" element={<Layout><ProtectedRoute><DeploymentPage /></ProtectedRoute></Layout>} />
+              <Route path="/dashboard" element={<Layout><ProtectedRoute><DashboardPage /></ProtectedRoute></Layout>} />
+              <Route path="/profile" element={<Layout><ProtectedRoute><ProfilePage /></ProtectedRoute></Layout>} />
+              <Route path="/cart" element={<Layout><CartPage /></Layout>} />
+              <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+              <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+              <Route path="/privacy" element={<Layout><PrivacyPage /></Layout>} />
+              <Route path="/terms" element={<Layout><TermsPage /></Layout>} />
+              <Route path="/careers" element={<Layout><CareersPage /></Layout>} />
+              <Route path="/login" element={<LoginPage />} />
+            </Routes>
+          </Router>
+        </CartProvider>
+      </AuthProvider>
     </ThemeProvider>
   )
 }

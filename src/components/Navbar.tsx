@@ -3,8 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { ShoppingCartOutlined, UserOutlined, MenuOutlined } from '@ant-design/icons';
-import { Drawer, Badge, Avatar, Dropdown } from 'antd';
+import { Drawer, Badge, Avatar, Dropdown, Tooltip } from 'antd';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import type { MenuProps } from 'antd';
 
 const NavbarContainer = styled.nav`
@@ -86,42 +87,51 @@ const MobileNavLinks = styled.div`
   gap: ${theme.space.md};
 `;
 
-const items: MenuProps['items'] = [
-  {
-    key: '1',
-    label: (
-      <Link to="/profile">个人资料</Link>
-    ),
-  },
-  {
-    key: '2',
-    label: (
-      <Link to="/dashboard">我的游戏</Link>
-    ),
-  },
-  {
-    key: '3',
-    label: (
-      <Link to="/billing">计费设置</Link>
-    ),
-  },
-  {
-    type: 'divider',
-  },
-  {
-    key: '4',
-    label: '退出登录',
-  },
-];
+
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { totalItems } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+  
+  const handleMenuClick = ({ key }: { key: string }) => {
+    if (key === 'logout') {
+      logout();
+    }
+  };
+  
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'profile',
+      label: (
+        <Link to="/profile">个人资料</Link>
+      ),
+    },
+    {
+      key: 'dashboard',
+      label: (
+        <Link to="/dashboard">我的游戏</Link>
+      ),
+    },
+    {
+      key: 'billing',
+      label: (
+        <Link to="/billing">计费设置</Link>
+      ),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      label: '退出登录',
+    },
+  ];
   
   return (
     <NavbarContainer>
@@ -152,9 +162,22 @@ const Navbar: React.FC = () => {
             </Link>
           </Badge>
           
-          <Dropdown menu={{ items }} placement="bottomRight">
-            <Avatar icon={<UserOutlined />} style={{ cursor: 'pointer', backgroundColor: theme.colors.primary }} />
-          </Dropdown>
+          {isAuthenticated ? (
+            <Dropdown menu={{ items: userMenuItems, onClick: handleMenuClick }} placement="bottomRight">
+              <Tooltip title={user?.name || user?.username}>
+                <Avatar 
+                  icon={<UserOutlined />} 
+                  style={{ cursor: 'pointer', backgroundColor: theme.colors.primary }}
+                />
+              </Tooltip>
+            </Dropdown>
+          ) : (
+            <Tooltip title="点击登录">
+              <Link to="/login">
+                <Avatar icon={<UserOutlined />} style={{ cursor: 'pointer', backgroundColor: theme.colors.text.secondary }} />
+              </Link>
+            </Tooltip>
+          )}
           
           <MobileMenuButton onClick={() => setMobileMenuOpen(true)}>
             <MenuOutlined />
