@@ -171,12 +171,6 @@ MIT License
 
 欢迎提交 Issue 和 Pull Request 来改进项目。
 
-## 📞 联系我们
-
-如有任何问题或建议，请通过以下方式联系我们：
-- 邮箱: contact@theninth.com
-- 官网: https://theninth.com
-
 ---
 
 **TheNinth** - 让游戏服务器部署变得简单高效 🎮
