@@ -270,17 +270,33 @@ const GameDetailPage: React.FC = () => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (game?: any) => {
+    const targetGame = game || gameData;
     // 只传递CartGame所需的属性
     addToCart({
-      id: gameData.id,
-      title: gameData.title,
-      description: gameData.description,
-      imageUrl: gameData.imageUrl,
-      price: gameData.price,
-      discountPrice: gameData.discountPrice,
-      developer: gameData.developer,
-      publisher: gameData.publisher
+      id: targetGame.id,
+      title: targetGame.title,
+      description: targetGame.description || `${targetGame.title}是一款精彩的游戏`,
+      imageUrl: targetGame.imageUrl,
+      price: targetGame.price,
+      discountPrice: targetGame.discountPrice,
+      developer: targetGame.developer || '未知开发商',
+      publisher: targetGame.publisher || '未知发行商'
+    });
+    message.success('已添加到购物车');
+  };
+
+  const handleRelatedGameAddToCart = (relatedGame: any) => {
+    // 为相关游戏创建专门的处理函数
+    addToCart({
+      id: relatedGame.id,
+      title: relatedGame.title,
+      description: `${relatedGame.title}是一款精彩的游戏`,
+      imageUrl: relatedGame.imageUrl,
+      price: relatedGame.price,
+      discountPrice: relatedGame.discountPrice,
+      developer: '未知开发商',
+      publisher: '未知发行商'
     });
     message.success('已添加到购物车');
   };
@@ -521,7 +537,7 @@ const GameDetailPage: React.FC = () => {
                     <Link to={`/games/${game.id}`}>查看详情</Link>
                   </Tooltip>,
                   <Tooltip title="加入购物车">
-                    <ShoppingCartOutlined key="cart" onClick={() => handleAddToCart()} />
+                    <ShoppingCartOutlined key="cart" onClick={() => handleRelatedGameAddToCart(game)} />
                   </Tooltip>,
                 ]}
               >

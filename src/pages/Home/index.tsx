@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
-import { Button, Row, Col, Carousel, message } from 'antd';
+import { Button, Row, Col, Carousel } from 'antd';
 import { RocketOutlined, CloudServerOutlined, SafetyCertificateOutlined, CustomerServiceOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import { useCart } from '../../contexts/CartContext';
 import GameCard from '../../components/GameCard';
 import type { GameData } from '../../components/GameCard';
 
@@ -280,31 +279,6 @@ const carouselGames = [
 ];
 
 const HomePage: React.FC = () => {
-  const { addToCart } = useCart();
-  
-  const handleAddToCart = (gameId: string) => {
-    // 从mockData中找到对应的游戏数据
-    const game = featuredGames.find(g => g.id === gameId) || 
-                newGames.find(g => g.id === gameId) || 
-                carouselGames.find(g => g.id === gameId);
-    
-    if (game) {
-      // 查找完整游戏数据（带价格）
-      const fullGameData = featuredGames.find(g => g.id === gameId) || 
-                          newGames.find(g => g.id === gameId);
-      
-      // 只传递CartGame所需的属性
-      addToCart({
-        id: game.id,
-        title: game.title,
-        description: game.description,
-        imageUrl: game.imageUrl,
-        price: fullGameData?.price || 99, // 使用完整游戏数据的价格或默认价格
-        discountPrice: fullGameData?.discountPrice
-      });
-      message.success(`已添加 ${game.title} 到购物车`);
-    }
-  };
   
   return (
     <>
@@ -350,7 +324,7 @@ const HomePage: React.FC = () => {
           <Row gutter={[24, 24]}>
             {featuredGames.map(game => (
               <Col xs={24} sm={12} md={8} lg={6} key={game.id}>
-                <GameCard game={game} onAddToCart={handleAddToCart} />
+                <GameCard game={game} />
               </Col>
             ))}
           </Row>
@@ -416,7 +390,7 @@ const HomePage: React.FC = () => {
           <Row gutter={[24, 24]}>
             {newGames.map(game => (
               <Col xs={24} sm={12} md={8} lg={6} key={game.id}>
-                <GameCard game={game} onAddToCart={handleAddToCart} />
+                <GameCard game={game} />
               </Col>
             ))}
           </Row>

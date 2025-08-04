@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Row, Col, Select, Pagination, Empty, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import GameCard from '../../components/GameCard';
-import { useCart } from '../../contexts/CartContext';
-import { message } from 'antd';
 import { games } from '../../utils/mockData';
 import type { GameData } from '../../components/GameCard';
 import {
@@ -43,7 +41,7 @@ const GamesPage: React.FC = () => {
   const [loading] = useState(false);
   const pageSize = 12;
   
-  const { addToCart } = useCart();
+
   
   // 转换游戏数据
   const gameData = convertToGameData(games);
@@ -79,20 +77,7 @@ const GamesPage: React.FC = () => {
   // 获取所有标签
   const allTags = Array.from(new Set(gameData.flatMap(game => game.tags)));
   
-  const handleAddToCart = (gameId: string) => {
-    const game = gameData.find(g => g.id === gameId);
-    if (game) {
-      addToCart({
-        id: game.id,
-        title: game.title,
-        description: game.description,
-        imageUrl: game.imageUrl,
-        price: game.price,
-        discountPrice: game.discountPrice
-      });
-      message.success(`已添加 ${game.title} 到购物车`);
-    }
-  };
+
   
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -164,7 +149,7 @@ const GamesPage: React.FC = () => {
           <Row gutter={[24, 24]}>
             {paginatedGames.map(game => (
               <Col xs={24} sm={12} md={8} lg={6} key={game.id}>
-                <GameCard game={game} onAddToCart={handleAddToCart} />
+                <GameCard game={game} />
               </Col>
             ))}
           </Row>
