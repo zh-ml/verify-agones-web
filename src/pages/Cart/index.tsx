@@ -302,15 +302,47 @@ const CartPage: React.FC = () => {
           </Button>,
         ]}
       >
-        <p>您即将支付 <PriceText>¥{totalPrice.toFixed(2)}</PriceText> 购买以下游戏：</p>
-        <ul>
-          {cartItems.map(item => (
-            <li key={item.id}>
-              {item.title} x {item.quantity} - ¥{((item.discountPrice || item.price) * item.quantity).toFixed(2)}
-            </li>
-          ))}
-        </ul>
-        <p>支付成功后，您可以立即部署游戏服务器。</p>
+        <div style={{ marginBottom: '16px' }}>
+          <h4>游戏费用</h4>
+          <ul style={{ marginBottom: '16px' }}>
+            {cartItems.map(item => (
+              <li key={item.id}>
+                {item.title} x {item.quantity} - ¥{((item.discountPrice || item.price) * item.quantity).toFixed(2)}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div style={{ marginBottom: '16px' }}>
+           <h4>服务器配置费用（可选方案）</h4>
+           <div style={{ marginBottom: '16px' }}>
+             <p style={{ fontWeight: '500', marginBottom: '8px' }}>基础方案：</p>
+             <ul style={{ marginLeft: '16px', marginBottom: '12px' }}>
+               <li>CPU (2核) + 内存 (4GB) - ¥40/月</li>
+               <li>存储 (20GB) - ¥10/月</li>
+               <li>带宽 (10Mbps) - ¥2/月</li>
+             </ul>
+             <p style={{ fontWeight: '500', marginBottom: '8px' }}>标准方案：</p>
+             <ul style={{ marginLeft: '16px', marginBottom: '12px' }}>
+               <li>CPU (4核) + 内存 (8GB) - ¥80/月</li>
+               <li>存储 (50GB) - ¥25/月</li>
+               <li>带宽 (20Mbps) - ¥4/月</li>
+             </ul>
+             <p style={{ fontWeight: '500', marginBottom: '8px' }}>高级方案：</p>
+             <ul style={{ marginLeft: '16px', marginBottom: '12px' }}>
+               <li>CPU (8核) + 内存 (16GB) - ¥160/月</li>
+               <li>存储 (100GB) - ¥50/月</li>
+               <li>带宽 (50Mbps) - ¥10/月</li>
+             </ul>
+           </div>
+           <p style={{ color: '#666', fontSize: '12px', margin: '8px 0' }}>
+             * 以上为预设方案，您可以在部署时选择或自定义配置，价格将根据实际配置计算
+           </p>
+         </div>
+        <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
+           <p><strong>游戏总费用：<PriceText>¥{totalPrice.toFixed(2)}</PriceText></strong></p>
+           <p><strong>预估月度服务器费用：<PriceText>¥52 - ¥220/月</PriceText></strong></p>
+           <p style={{ color: '#666', fontSize: '12px' }}>支付成功后，您可以立即部署游戏服务器并选择配置方案。</p>
+         </div>
       </Modal>
     </CartContainer>
   );

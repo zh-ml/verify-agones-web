@@ -9,6 +9,7 @@ import { CartProvider } from './contexts/CartContext';
 // 页面组件
 import HomePage from './pages/Home';
 import GameDetailPage from './pages/GameDetail';
+import GamePurchasePage from './pages/GamePurchase';
 import DeploymentPage from './pages/Deployment';
 import DashboardPage from './pages/Dashboard';
 import ProfilePage from './pages/Profile';
@@ -30,6 +31,7 @@ function App() {
             <Route path="/" element={<Layout><HomePage /></Layout>} />
             <Route path="/games" element={<Layout><GamesPage /></Layout>} />
             <Route path="/games/:id" element={<Layout><GameDetailPage /></Layout>} />
+            <Route path="/game-purchase/:id" element={<Layout><GamePurchasePage /></Layout>} />
             <Route path="/deployment/:id" element={<Layout><DeploymentPage /></Layout>} />
             <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
             <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />

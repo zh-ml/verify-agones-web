@@ -472,6 +472,13 @@ const GameDetailPage: React.FC = () => {
               type="primary" 
               size="large" 
               icon={<RocketOutlined />}
+              onClick={() => navigate(`/game-purchase/${gameData.id}`)}
+            >
+              购买游戏
+            </Button>
+            <Button 
+              size="large" 
+              icon={<RocketOutlined />}
               onClick={handleBuyNow}
             >
               立即部署
