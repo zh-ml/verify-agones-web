@@ -110,15 +110,10 @@ const DeploymentPage: React.FC = () => {
   // 根据ID获取游戏数据
   const gameData = mockGames.find(game => game.id === id) || mockGames[0];
 
-  // 为游戏添加版本和部署选项
+  // 为游戏添加版本信息
   const gameWithOptions = {
     ...gameData,
     versions: gameVersions,
-    deploymentOptions: [
-      { name: '基础版', cpu: '2核', memory: '4GB', storage: '50GB', price: 20 },
-      { name: '标准版', cpu: '4核', memory: '8GB', storage: '100GB', price: 40 },
-      { name: '高级版', cpu: '8核', memory: '16GB', storage: '200GB', price: 80 },
-    ],
   };
 
 
@@ -148,17 +143,23 @@ const DeploymentPage: React.FC = () => {
 
   // 设置默认值
   useEffect(() => {
-    form.setFieldsValue({
+    const defaultValues: any = {
       version: gameWithOptions.versions[0].value,
-      plan: 0,
       serverName: `${gameWithOptions.title} 服务器`,
       maxPlayers: 10,
       gameMode: 'survival',
       difficulty: 'normal',
       enablePVP: true,
       serverDescription: '这是我的游戏服务器'
-    });
-  }, [form, gameWithOptions.versions, gameWithOptions.title]);
+    };
+
+    // 只有在没有从URL传入planIndex时才设置默认plan值
+    if (planIndex === null) {
+      defaultValues.plan = 0;
+    }
+
+    form.setFieldsValue(defaultValues);
+  }, [form, gameWithOptions.versions, gameWithOptions.title, planIndex]);
 
   const handleNext = () => {
     if (currentStep === 0) {
@@ -221,6 +222,7 @@ const DeploymentPage: React.FC = () => {
   const [customConfig, setCustomConfig] = useState<DeploymentConfig | null>(null);
   const [customPrice, setCustomPrice] = useState(0);
   const [configMode, setConfigMode] = useState('preset'); // 'preset' 或 'custom'
+  const [forceUpdate, setForceUpdate] = useState(0); // 用于强制重新渲染价格
 
   // 处理自定义配置变更
   const handleCustomConfigChange = (config: DeploymentConfig, price: number) => {
@@ -231,6 +233,8 @@ const DeploymentPage: React.FC = () => {
   // 计算价格
   const calculatePrice = () => {
     const values = form.getFieldsValue();
+    // 使用 forceUpdate 来确保价格重新计算
+    void forceUpdate;
 
     if (configMode === 'custom' && customConfig) {
       return {
@@ -238,8 +242,15 @@ const DeploymentPage: React.FC = () => {
         total: customPrice,
       };
     } else {
-      const planIndex = values.plan !== undefined ? values.plan : 0;
-      const basePrice = gameWithOptions.deploymentOptions[planIndex]?.price || 0;
+      // 优先使用表单中的值，然后是URL传入的planIndex，最后是默认值0
+      let selectedPlanIndex = 0;
+      if (values.plan !== undefined) {
+        selectedPlanIndex = values.plan;
+      } else if (planIndex !== null) {
+        selectedPlanIndex = parseInt(planIndex);
+      }
+
+      const basePrice = gameWithOptions.deploymentOptions[selectedPlanIndex]?.basePrice || 0;
 
       return {
         basePrice,
@@ -281,7 +292,7 @@ const DeploymentPage: React.FC = () => {
                 <Radio.Group>
                   {gameWithOptions.deploymentOptions.map((option, index) => (
                     <Radio.Button value={index} key={index}>
-                      {option.name} ({option.cpu}/{option.memory})
+                      {option.name} ({option.specs.cpu}/{option.specs.memory})
                     </Radio.Button>
                   ))}
                 </Radio.Group>
@@ -290,9 +301,9 @@ const DeploymentPage: React.FC = () => {
                 message="配置说明" 
                 description={
                   <>
-                    <p><strong>基础版：</strong> 适合小型服务器，支持5-10名玩家同时在线。</p>
-                    <p><strong>标准版：</strong> 适合中型服务器，支持10-25名玩家同时在线。</p>
-                    <p><strong>高级版：</strong> 适合大型服务器，支持25-50名玩家同时在线。</p>
+                    {gameWithOptions.deploymentOptions.map((option, index) => (
+                      <p key={index}><strong>{option.name}：</strong> {option.description}</p>
+                    ))}
                   </>
                 } 
                 type="info" 
@@ -380,9 +391,9 @@ const DeploymentPage: React.FC = () => {
             {configMode === 'preset' ? (
               <>
                 <p><strong>服务器配置：</strong> {gameWithOptions.deploymentOptions[form.getFieldValue('plan') || 0].name}</p>
-                <p><strong>CPU：</strong> {gameWithOptions.deploymentOptions[form.getFieldValue('plan') || 0].cpu}</p>
-                <p><strong>内存：</strong> {gameWithOptions.deploymentOptions[form.getFieldValue('plan') || 0].memory}</p>
-                <p><strong>存储：</strong> {gameWithOptions.deploymentOptions[form.getFieldValue('plan') || 0].storage}</p>
+                <p><strong>CPU：</strong> {gameWithOptions.deploymentOptions[form.getFieldValue('plan') || 0].specs.cpu}</p>
+                <p><strong>内存：</strong> {gameWithOptions.deploymentOptions[form.getFieldValue('plan') || 0].specs.memory}</p>
+                <p><strong>存储：</strong> {gameWithOptions.deploymentOptions[form.getFieldValue('plan') || 0].specs.storage}</p>
               </>
             ) : customConfig ? (
               <>
@@ -449,7 +460,12 @@ const DeploymentPage: React.FC = () => {
       </StepsContainer>
       <Row gutter={24}>
         <Col xs={24} md={16}>
-          <Form form={form} layout="vertical" initialValues={{ plan: planIndex ? parseInt(planIndex) : 0 }}>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={{ plan: planIndex ? parseInt(planIndex) : 0 }}
+            onValuesChange={() => setForceUpdate(prev => prev + 1)}
+          >
             <StepContent>
               {loading ? (
                 <div style={{ textAlign: 'center', padding: '50px 0' }}>
