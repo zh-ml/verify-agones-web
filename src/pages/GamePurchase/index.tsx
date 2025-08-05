@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, Button, Tabs, Row, Col, Typography, Divider, message } from 'antd';
-import { ShoppingCartOutlined, RocketOutlined } from '@ant-design/icons';
+import { RocketOutlined } from '@ant-design/icons';
 import { theme } from '../../styles/theme';
 import { games as mockGames } from '../../utils/mockData';
-import { useCart } from '../../contexts/CartContext';
 
 const { Title, Text } = Typography;
 
@@ -74,22 +73,6 @@ const DeploymentCard = styled(Card)`
   }
 `;
 
-const SpecTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  
-  th, td {
-    padding: ${theme.space.sm};
-    text-align: left;
-    border-bottom: 1px solid ${theme.colors.border};
-  }
-  
-  th {
-    font-weight: bold;
-    background-color: #f5f5f5;
-  }
-`;
-
 interface GameData {
   id: string;
   title: string;
@@ -130,39 +113,16 @@ interface GameData {
 const GamePurchasePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+
   
   // 在实际应用中，这里会从API获取游戏数据
   const gameData: GameData = mockGames.find((game: any) => game.id === id) || mockGames[0];
   
   const [activeTab, setActiveTab] = useState('1');
   
-  const handleAddToCart = () => {
-    addToCart({
-      id: gameData.id,
-      title: gameData.title,
-      description: gameData.description,
-      imageUrl: gameData.coverImage,
-      price: gameData.price,
-      discountPrice: gameData.discountPrice,
-      developer: gameData.developer,
-      publisher: gameData.publisher
-    });
-    message.success('已添加到购物车！');
-  };
-
   const handleBuyNow = () => {
-    addToCart({
-      id: gameData.id,
-      title: gameData.title,
-      description: gameData.description,
-      imageUrl: gameData.coverImage,
-      price: gameData.price,
-      discountPrice: gameData.discountPrice,
-      developer: gameData.developer,
-      publisher: gameData.publisher
-    });
-    navigate('/cart');
+    message.success('购买成功！正在跳转到部署页面...');
+    navigate(`/deployment/${gameData.id}`);
   };
   
   const handleDeployNow = (planIndex: number) => {
@@ -191,16 +151,7 @@ const GamePurchasePage: React.FC = () => {
           
           <div>
             <Button 
-              type="primary" 
-              size="large" 
-              icon={<ShoppingCartOutlined />} 
-              onClick={handleAddToCart}
-              style={{ marginRight: theme.space.md }}
-            >
-              加入购物车
-            </Button>
-            
-            <Button 
+              type="primary"
               size="large" 
               onClick={handleBuyNow}
             >
@@ -211,49 +162,7 @@ const GamePurchasePage: React.FC = () => {
       </GameHeader>
       
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
-        <Tabs.TabPane tab="游戏介绍" key="1">
-          <div dangerouslySetInnerHTML={{ __html: gameData.description }} />
-          
-          <Title level={4} style={{ marginTop: theme.space.xl }}>系统需求</Title>
-          <SpecTable>
-            <thead>
-              <tr>
-                <th>配置</th>
-                <th>最低配置</th>
-                <th>推荐配置</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>操作系统</td>
-                <td>{gameData.systemRequirements.minimum.os}</td>
-                <td>{gameData.systemRequirements.recommended.os}</td>
-              </tr>
-              <tr>
-                <td>处理器</td>
-                <td>{gameData.systemRequirements.minimum.processor}</td>
-                <td>{gameData.systemRequirements.recommended.processor}</td>
-              </tr>
-              <tr>
-                <td>内存</td>
-                <td>{gameData.systemRequirements.minimum.memory}</td>
-                <td>{gameData.systemRequirements.recommended.memory}</td>
-              </tr>
-              <tr>
-                <td>显卡</td>
-                <td>{gameData.systemRequirements.minimum.graphics}</td>
-                <td>{gameData.systemRequirements.recommended.graphics}</td>
-              </tr>
-              <tr>
-                <td>存储空间</td>
-                <td>{gameData.systemRequirements.minimum.storage}</td>
-                <td>{gameData.systemRequirements.recommended.storage}</td>
-              </tr>
-            </tbody>
-          </SpecTable>
-        </Tabs.TabPane>
-        
-        <Tabs.TabPane tab="部署方案" key="2">
+        <Tabs.TabPane tab="部署方案" key="1">
           <Title level={4}>选择部署方案</Title>
           <Text type="secondary" style={{ marginBottom: theme.space.md, display: 'block' }}>
             选择适合您的服务器配置方案，或者点击"自定义配置"按钮进行个性化设置。

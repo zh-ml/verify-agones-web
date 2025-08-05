@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
-import { Button, Tabs, Rate, Tag, Divider, Row, Col, Card, Image, Descriptions, Tooltip, message } from 'antd';
-import { ShoppingCartOutlined, RocketOutlined, CloudServerOutlined, SafetyCertificateOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Button, Tabs, Rate, Tag, Divider, Row, Col, Card, Image, Descriptions, Tooltip } from 'antd';
+import { RocketOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
-import { useCart } from '../../contexts/CartContext';
+
 
 const DetailContainer = styled.div`
   max-width: 1200px;
@@ -181,7 +181,7 @@ const gameData = {
 Minecraft的世界由不同的生物群系组成，包括森林、沙漠、雪原等，每个生物群系都有其独特的地形、植物和生物。游戏中还有下界和末地两个维度，玩家可以通过特殊的传送门访问这些维度。
 
 多人游戏模式允许玩家在同一个世界中一起玩耍，可以合作建造或者相互竞争。`,
-  imageUrl: 'https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_2023-Trails_and_Tales_1170x500.jpg',
+  imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
   price: 199,
   discountPrice: 159,
   rating: 4.8,
@@ -266,55 +266,7 @@ const GameDetailPage: React.FC = () => {
   const discountPercentage = hasDiscount 
     ? Math.round(((gameData.price - (gameData.discountPrice || 0)) / gameData.price) * 100) 
     : 0;
-  
-  const { addToCart } = useCart();
   const navigate = useNavigate();
-
-  const handleAddToCart = (game?: any) => {
-    const targetGame = game || gameData;
-    // 只传递CartGame所需的属性
-    addToCart({
-      id: targetGame.id,
-      title: targetGame.title,
-      description: targetGame.description || `${targetGame.title}是一款精彩的游戏`,
-      imageUrl: targetGame.imageUrl,
-      price: targetGame.price,
-      discountPrice: targetGame.discountPrice,
-      developer: targetGame.developer || '未知开发商',
-      publisher: targetGame.publisher || '未知发行商'
-    });
-    message.success('已添加到购物车');
-  };
-
-  const handleRelatedGameAddToCart = (relatedGame: any) => {
-    // 为相关游戏创建专门的处理函数
-    addToCart({
-      id: relatedGame.id,
-      title: relatedGame.title,
-      description: `${relatedGame.title}是一款精彩的游戏`,
-      imageUrl: relatedGame.imageUrl,
-      price: relatedGame.price,
-      discountPrice: relatedGame.discountPrice,
-      developer: '未知开发商',
-      publisher: '未知发行商'
-    });
-    message.success('已添加到购物车');
-  };
-  
-  const handleBuyNow = () => {
-    // 只传递CartGame所需的属性
-    addToCart({
-      id: gameData.id,
-      title: gameData.title,
-      description: gameData.description,
-      imageUrl: gameData.imageUrl,
-      price: gameData.price,
-      discountPrice: gameData.discountPrice,
-      developer: gameData.developer,
-      publisher: gameData.publisher
-    });
-    navigate('/cart');
-  };
   
   const tabItems: TabsProps['items'] = [
     {
@@ -375,68 +327,6 @@ const GameDetailPage: React.FC = () => {
         </TabContent>
       ),
     },
-    {
-      key: '3',
-      label: '部署方案',
-      children: (
-        <TabContent>
-          <p>选择适合您需求的部署方案，我们提供多种配置选项，以满足不同规模的游戏服务器需求。</p>
-          
-          <Row gutter={[16, 16]} style={{ marginTop: theme.space.lg }}>
-            {gameData.deploymentOptions.map((option, index) => (
-              <Col xs={24} sm={24} md={8} key={index}>
-                <Card 
-                  title={option.name} 
-                  bordered={true} 
-                  hoverable
-                  style={{ height: '100%' }}
-                  actions={[
-                    <Button type="primary" key="deploy">
-                      <Link to={`/deployment/${gameData.id}?plan=${index}`}>选择此方案</Link>
-                    </Button>
-                  ]}
-                >
-                  <p><strong>CPU:</strong> {option.cpu}</p>
-                  <p><strong>内存:</strong> {option.memory}</p>
-                  <p><strong>存储:</strong> {option.storage}</p>
-                  <Divider />
-                  <p style={{ fontSize: theme.fontSizes.xl, fontWeight: 'bold', color: theme.colors.primary }}>
-                    ¥{option.price}/月
-                  </p>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-          
-          <div style={{ marginTop: theme.space.xl }}>
-            <h3>我们的部署优势</h3>
-            <Row gutter={[16, 16]} style={{ marginTop: theme.space.md }}>
-              <Col xs={24} sm={12} md={8}>
-                <Card>
-                  <RocketOutlined style={{ fontSize: '24px', color: theme.colors.primary }} />
-                  <h4 style={{ marginTop: theme.space.sm }}>快速部署</h4>
-                  <p>只需几分钟，即可完成游戏服务器的部署，无需复杂配置。</p>
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={8}>
-                <Card>
-                  <CloudServerOutlined style={{ fontSize: '24px', color: theme.colors.primary }} />
-                  <h4 style={{ marginTop: theme.space.sm }}>高性能服务器</h4>
-                  <p>采用最新的云技术，提供高性能、低延迟的游戏服务器。</p>
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={8}>
-                <Card>
-                  <SafetyCertificateOutlined style={{ fontSize: '24px', color: theme.colors.primary }} />
-                  <h4 style={{ marginTop: theme.space.sm }}>安全可靠</h4>
-                  <p>多重安全防护，确保您的游戏数据安全，服务稳定可靠。</p>
-                </Card>
-              </Col>
-            </Row>
-          </div>
-        </TabContent>
-      ),
-    },
   ];
   
   return (
@@ -492,20 +382,6 @@ const GameDetailPage: React.FC = () => {
             >
               购买游戏
             </Button>
-            <Button 
-              size="large" 
-              icon={<RocketOutlined />}
-              onClick={handleBuyNow}
-            >
-              立即部署
-            </Button>
-            <Button 
-              size="large" 
-              icon={<ShoppingCartOutlined />}
-              onClick={handleAddToCart}
-            >
-              加入购物车
-            </Button>
           </ActionButtons>
           
           <FeatureList>
@@ -536,9 +412,7 @@ const GameDetailPage: React.FC = () => {
                   <Tooltip title="查看详情">
                     <Link to={`/games/${game.id}`}>查看详情</Link>
                   </Tooltip>,
-                  <Tooltip title="加入购物车">
-                    <ShoppingCartOutlined key="cart" onClick={() => handleRelatedGameAddToCart(game)} />
-                  </Tooltip>,
+
                 ]}
               >
                 <Card.Meta 

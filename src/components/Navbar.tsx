@@ -2,9 +2,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
-import { ShoppingCartOutlined, UserOutlined, MenuOutlined } from '@ant-design/icons';
-import { Drawer, Badge, Avatar, Dropdown, Tooltip } from 'antd';
-import { useCart } from '../contexts/CartContext';
+import { UserOutlined, MenuOutlined } from '@ant-design/icons';
+import { Drawer, Avatar, Dropdown, Tooltip } from 'antd';
 import { useAuth } from '../contexts/AuthContext';
 import type { MenuProps } from 'antd';
 
@@ -92,7 +91,7 @@ const MobileNavLinks = styled.div`
 const Navbar: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const { totalItems } = useCart();
+
   const { user, isAuthenticated, logout } = useAuth();
   
   const isActive = (path: string) => {
@@ -156,12 +155,6 @@ const Navbar: React.FC = () => {
         </NavLinks>
         
         <NavActions>
-          <Badge count={totalItems}>
-            <Link to="/cart">
-              <ShoppingCartOutlined style={{ fontSize: '24px', color: theme.colors.text.primary }} />
-            </Link>
-          </Badge>
-          
           {isAuthenticated ? (
             <Dropdown menu={{ items: userMenuItems, onClick: handleMenuClick }} placement="bottomRight">
               <Tooltip title={user?.name || user?.username}>
@@ -207,9 +200,7 @@ const Navbar: React.FC = () => {
           <NavLink to="/profile" $active={isActive('/profile')}>
             个人资料
           </NavLink>
-          <NavLink to="/cart" $active={isActive('/cart')}>
-            购物车
-          </NavLink>
+
         </MobileNavLinks>
       </Drawer>
     </NavbarContainer>

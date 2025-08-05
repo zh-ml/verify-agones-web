@@ -4,7 +4,6 @@ import { ThemeProvider } from 'styled-components';
 import { theme } from './styles/theme';
 import GlobalStyles from './styles/GlobalStyles';
 import Layout from './components/Layout';
-import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 
 // 页面组件
@@ -14,7 +13,6 @@ import GamePurchasePage from './pages/GamePurchase';
 import DeploymentPage from './pages/Deployment';
 import DashboardPage from './pages/Dashboard';
 import ProfilePage from './pages/Profile';
-import CartPage from './pages/Cart';
 import GamesPage from './pages/Games';
 import AboutPage from './pages/About';
 import ContactPage from './pages/Contact';
@@ -29,8 +27,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyles />
       <AuthProvider>
-        <CartProvider>
-          <Router>
+        <Router>
             <Routes>
               <Route path="/" element={<Layout><HomePage /></Layout>} />
               <Route path="/games" element={<Layout><GamesPage /></Layout>} />
@@ -39,7 +36,7 @@ function App() {
               <Route path="/deployment/:id" element={<Layout><ProtectedRoute><DeploymentPage /></ProtectedRoute></Layout>} />
               <Route path="/dashboard" element={<Layout><ProtectedRoute><DashboardPage /></ProtectedRoute></Layout>} />
               <Route path="/profile" element={<Layout><ProtectedRoute><ProfilePage /></ProtectedRoute></Layout>} />
-              <Route path="/cart" element={<Layout><CartPage /></Layout>} />
+
               <Route path="/about" element={<Layout><AboutPage /></Layout>} />
               <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
               <Route path="/privacy" element={<Layout><PrivacyPage /></Layout>} />
@@ -47,8 +44,7 @@ function App() {
               <Route path="/careers" element={<Layout><CareersPage /></Layout>} />
               <Route path="/login" element={<LoginPage />} />
             </Routes>
-          </Router>
-        </CartProvider>
+        </Router>
       </AuthProvider>
     </ThemeProvider>
   )

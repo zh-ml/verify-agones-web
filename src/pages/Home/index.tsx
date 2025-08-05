@@ -173,7 +173,7 @@ const featuredGames: GameData[] = [
     id: '1',
     title: 'Minecraft',
     description: '一款关于方块与冒险的游戏，你可以在游戏中探索无限世界，建造从简单的房子到宏伟的城堡的一切事物。',
-    imageUrl: 'https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_2023-Trails_and_Tales_1170x500.jpg',
+    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
     price: 199,
     discountPrice: 159,
     rating: 4.8,
@@ -262,7 +262,7 @@ const carouselGames = [
     id: '1',
     title: 'Minecraft',
     description: '探索无限世界，建造从简单的房子到宏伟的城堡的一切事物。',
-    imageUrl: 'https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_2023-Trails_and_Tales_1170x500.jpg',
+    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
   },
   {
     id: '6',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import { Steps, Button, Form, Select, InputNumber, Radio, Card, Row, Col, Divider, Alert, Spin, Result, Input } from 'antd';
@@ -98,7 +98,7 @@ const DeploymentPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = useLocation();
+
   const [form] = Form.useForm();
   
   const [currentStep, setCurrentStep] = useState(0);
@@ -121,8 +121,7 @@ const DeploymentPage: React.FC = () => {
     ],
   };
 
-  // 检查是否从购物车支付成功后跳转过来
-  const fromPayment = location.state?.fromPayment === true;
+
 
   // 获取URL中的plan参数和custom参数
   const planIndex = searchParams.get('plan');
@@ -147,25 +146,19 @@ const DeploymentPage: React.FC = () => {
     }
   }, [planIndex, form, gameWithOptions.deploymentOptions.length]);
 
-  // 处理从购物车支付成功后的跳转
+  // 设置默认值
   useEffect(() => {
-    if (fromPayment) {
-      // 设置默认值
-      form.setFieldsValue({
-        version: gameWithOptions.versions[0].value,
-        plan: 0,
-        serverName: `${gameWithOptions.title} 服务器`,
-        maxPlayers: 10,
-        gameMode: 'survival',
-        difficulty: 'normal',
-        enablePVP: true,
-        serverDescription: '这是我的游戏服务器'
-      });
-
-      // 跳转到选择配置步骤，开始完整的部署流程
-      setCurrentStep(0);
-    }
-  }, [fromPayment, form, gameWithOptions.versions, gameWithOptions.title]);
+    form.setFieldsValue({
+      version: gameWithOptions.versions[0].value,
+      plan: 0,
+      serverName: `${gameWithOptions.title} 服务器`,
+      maxPlayers: 10,
+      gameMode: 'survival',
+      difficulty: 'normal',
+      enablePVP: true,
+      serverDescription: '这是我的游戏服务器'
+    });
+  }, [form, gameWithOptions.versions, gameWithOptions.title]);
 
   const handleNext = () => {
     if (currentStep === 0) {

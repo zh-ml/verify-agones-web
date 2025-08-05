@@ -2,9 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
-import { Tag, Rate, Button, message } from 'antd';
-import { ShoppingCartOutlined } from '@ant-design/icons';
-import { useCart } from '../contexts/CartContext';
+import { Tag, Rate } from 'antd';
 
 // 游戏数据接口
 export interface GameData {
@@ -126,33 +124,15 @@ const RatingText = styled.span`
 
 interface GameCardProps {
   game: GameData;
-  onAddToCart?: (gameId: string) => void;
 }
 
-const GameCard: React.FC<GameCardProps> = ({ game, onAddToCart }) => {
+const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const hasDiscount = game.discountPrice !== undefined && game.discountPrice < game.price;
   const discountPercentage = hasDiscount 
     ? Math.round(((game.price - (game.discountPrice || 0)) / game.price) * 100) 
     : 0;
   
-  const { addToCart } = useCart();
-  
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    // 只传递CartGame所需的属性
-    addToCart({
-      id: game.id,
-      title: game.title,
-      description: game.description,
-      imageUrl: game.imageUrl,
-      price: game.price,
-      discountPrice: game.discountPrice
-    });
-    message.success(`已添加 ${game.title} 到购物车`);
-    if (onAddToCart) {
-      onAddToCart(game.id);
-    }
-  };
+
   
   return (
     <CardContainer to={`/games/${game.id}`}>
@@ -184,13 +164,6 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAddToCart }) => {
             <CurrentPrice>¥{hasDiscount ? game.discountPrice : game.price}</CurrentPrice>
             {hasDiscount && <OriginalPrice>¥{game.price}</OriginalPrice>}
           </Price>
-          
-          <Button 
-            type="primary" 
-            shape="circle" 
-            icon={<ShoppingCartOutlined />} 
-            onClick={handleAddToCart}
-          />
         </PriceContainer>
       </CardContent>
     </CardContainer>

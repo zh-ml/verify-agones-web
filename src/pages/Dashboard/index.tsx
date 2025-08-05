@@ -150,7 +150,7 @@ const userGames: UserGameData[] = [
     id: '1',
     title: 'Minecraft',
     description: '探索无限世界，建造从简单的房子到宏伟的城堡的一切事物。',
-    imageUrl: 'https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_2023-Trails_and_Tales_1170x500.jpg',
+    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
     price: 99,
     rating: 4.8,
     tags: ['沙盒', '生存', '多人'],
@@ -217,7 +217,7 @@ const servers: ServerData[] = [
     name: '我的世界生存服务器',
     game: 'Minecraft',
     gameId: '1',
-    imageUrl: 'https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_2023-Trails_and_Tales_1170x500.jpg',
+    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
     status: 'online',
     players: {
       current: 5,
@@ -237,7 +237,7 @@ const servers: ServerData[] = [
     name: '创造模式服务器',
     game: 'Minecraft',
     gameId: '1',
-    imageUrl: 'https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_2023-Trails_and_Tales_1170x500.jpg',
+    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
     status: 'offline',
     players: {
       current: 0,
