@@ -365,7 +365,7 @@ const HomePage: React.FC = () => {
           <Row gutter={[24, 24]}>
             {newGames.map(game => (
               <Col xs={24} sm={12} md={8} lg={6} key={game.id}>
-                <GameCard game={game} isTouch={false} />
+                <GameCard game={game}/>
               </Col>
             ))}
           </Row>
