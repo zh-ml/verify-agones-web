@@ -5,7 +5,6 @@ import { Row, Col, Form, Input, Button, message, Card } from 'antd';
 import { 
   MailOutlined, 
   PhoneOutlined, 
-  EnvironmentOutlined,
   GlobalOutlined
 } from '@ant-design/icons';
 
@@ -203,19 +202,6 @@ const ContactPage: React.FC = () => {
                 <ContactInfoTitle>电话</ContactInfoTitle>
                 <ContactInfoText>+86 400-123-4567</ContactInfoText>
                 <ContactInfoText>周一至周五 9:00-18:00</ContactInfoText>
-              </ContactInfoCard>
-            </Col>
-            
-            <Col span={24}>
-              <ContactInfoCard>
-                <ContactIconWrapper>
-                  <EnvironmentOutlined />
-                </ContactIconWrapper>
-                <ContactInfoTitle>地址</ContactInfoTitle>
-                <ContactInfoText>
-                  中国广东省深圳市南山区科技园南区
-                  科技南十二路2号金蝶软件园B栋10层
-                </ContactInfoText>
               </ContactInfoCard>
             </Col>
             

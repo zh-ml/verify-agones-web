@@ -17,7 +17,24 @@ export interface GameData {
   releaseDate: string;
 }
 
-const CardContainer = styled(Link)`
+// const CardContainer = styled(Link)`
+//   display: block;
+//   background-color: ${theme.colors.card};
+//   border-radius: ${theme.radii.lg};
+//   overflow: hidden;
+//   box-shadow: ${theme.shadows.md};
+//   transition: transform ${theme.transitions.normal} ease, box-shadow ${theme.transitions.normal} ease;
+//   height: 100%;
+//   color: ${theme.colors.text.primary};
+  
+//   &:hover {
+//     transform: translateY(-5px);
+//     box-shadow: ${theme.shadows.lg};
+//     color: ${theme.colors.text.primary};
+//   }
+// `;
+
+const BaseCard = styled.div`
   display: block;
   background-color: ${theme.colors.card};
   border-radius: ${theme.radii.lg};
@@ -32,6 +49,17 @@ const CardContainer = styled(Link)`
     box-shadow: ${theme.shadows.lg};
     color: ${theme.colors.text.primary};
   }
+`;
+
+const CardContainer = ({ to, children, ...rest }: { to?: string, children: React.ReactNode } & React.HTMLAttributes<HTMLElement>) => {
+  if (to) {
+    return <StyledLink to={to} {...rest}>{children}</StyledLink>;
+  }
+  return <BaseCard as="div" {...rest}>{children}</BaseCard>;
+};
+
+const StyledLink = styled(Link)`
+  ${BaseCard}
 `;
 
 const GameImage = styled.div<{ $imageUrl: string }>`
@@ -124,49 +152,85 @@ const RatingText = styled.span`
 
 interface GameCardProps {
   game: GameData;
+  isTouch?: boolean;
 }
 
-const GameCard: React.FC<GameCardProps> = ({ game }) => {
+const GameCard: React.FC<GameCardProps> = ({ game, isTouch = true }) => {
   const hasDiscount = game.discountPrice !== undefined && game.discountPrice < game.price;
   const discountPercentage = hasDiscount 
     ? Math.round(((game.price - (game.discountPrice || 0)) / game.price) * 100) 
     : 0;
-  
 
-  
   return (
-    <CardContainer to={`/games/${game.id}`}>
-      <GameImage $imageUrl={game.imageUrl}>
-        {hasDiscount && (
-          <DiscountBadge>-{discountPercentage}%</DiscountBadge>
-        )}
-      </GameImage>
-      <CardContent>
-        <GameTitle>{game.title}</GameTitle>
-        
-        <RatingContainer>
-          <Rate disabled defaultValue={game.rating} allowHalf style={{ fontSize: '14px' }} />
-          <RatingText>({game.rating})</RatingText>
-        </RatingContainer>
-        
-        <TagsContainer>
-          {game.tags.slice(0, 3).map((tag, index) => (
-            <Tag key={index} color={index === 0 ? theme.colors.primary : index === 1 ? theme.colors.secondary : theme.colors.accent}>
-              {tag}
-            </Tag>
-          ))}
-        </TagsContainer>
-        
-        <GameDescription>{game.description}</GameDescription>
-        
-        <PriceContainer>
-          <Price>
-            <CurrentPrice>¥{hasDiscount ? game.discountPrice : game.price}</CurrentPrice>
-            {hasDiscount && <OriginalPrice>¥{game.price}</OriginalPrice>}
-          </Price>
-        </PriceContainer>
-      </CardContent>
-    </CardContainer>
+    <>
+    {isTouch ? (
+      <CardContainer to={`/games/${game.id}`}>
+        <GameImage $imageUrl={game.imageUrl}>
+          {hasDiscount && (
+            <DiscountBadge>-{discountPercentage}%</DiscountBadge>
+          )}
+        </GameImage>
+        <CardContent>
+          <GameTitle>{game.title}</GameTitle>
+          
+          <RatingContainer>
+            <Rate disabled defaultValue={game.rating} allowHalf style={{ fontSize: '14px' }} />
+            <RatingText>({game.rating})</RatingText>
+          </RatingContainer>
+          
+          <TagsContainer>
+            {game.tags.slice(0, 3).map((tag, index) => (
+              <Tag key={index} color={index === 0 ? theme.colors.primary : index === 1 ? theme.colors.secondary : theme.colors.accent}>
+                {tag}
+              </Tag>
+            ))}
+          </TagsContainer>
+          
+          <GameDescription>{game.description}</GameDescription>
+          
+          <PriceContainer>
+            <Price>
+              <CurrentPrice>¥{hasDiscount ? game.discountPrice : game.price}</CurrentPrice>
+              {hasDiscount && <OriginalPrice>¥{game.price}</OriginalPrice>}
+            </Price>
+          </PriceContainer>
+        </CardContent>
+      </CardContainer>
+    ) : (
+      <CardContainer>
+        <GameImage $imageUrl={game.imageUrl}>
+          {hasDiscount && (
+            <DiscountBadge>-{discountPercentage}%</DiscountBadge>
+          )}
+        </GameImage>
+        <CardContent>
+          <GameTitle>{game.title}</GameTitle>
+          
+          <RatingContainer>
+            <Rate disabled defaultValue={game.rating} allowHalf style={{ fontSize: '14px' }} />
+            <RatingText>({game.rating})</RatingText>
+          </RatingContainer>
+          
+          <TagsContainer>
+            {game.tags.slice(0, 3).map((tag, index) => (
+              <Tag key={index} color={index === 0 ? theme.colors.primary : index === 1 ? theme.colors.secondary : theme.colors.accent}>
+                {tag}
+              </Tag>
+            ))}
+          </TagsContainer>
+          
+          <GameDescription>{game.description}</GameDescription>
+          
+          <PriceContainer>
+            <Price>
+              <CurrentPrice>¥{hasDiscount ? game.discountPrice : game.price}</CurrentPrice>
+              {hasDiscount && <OriginalPrice>¥{game.price}</OriginalPrice>}
+            </Price>
+          </PriceContainer>
+        </CardContent>
+      </CardContainer>
+    )}
+    </>
   );
 };
 

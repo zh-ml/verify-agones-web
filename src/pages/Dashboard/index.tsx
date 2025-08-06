@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
-import { Tabs, Card, Button, Tag, Statistic, Row, Col, Table, Badge, Space, Dropdown, Menu, Progress, Alert, Empty } from 'antd';
-import { PlayCircleOutlined, PauseCircleOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, DownOutlined, EyeOutlined, EditOutlined, CloudUploadOutlined, CloudDownloadOutlined, DownloadOutlined } from '@ant-design/icons';
+import { Tabs, Card, Button, Statistic, Row, Col, Table, Badge, Space, Dropdown, Menu, Progress, Alert, Empty, message, Modal } from 'antd';
+import { PlayCircleOutlined, PauseCircleOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, DownOutlined, EyeOutlined, EditOutlined, CloudUploadOutlined, CloudDownloadOutlined, DownloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { useServerStore } from '../../stores/serverStore';
+import { type GameServerInfo } from '../../api/pod';
 
 const DashboardContainer = styled.div`
   max-width: 1200px;
@@ -45,7 +47,7 @@ const ServerImage = styled.div<{ $imageUrl: string }>`
   position: relative;
 `;
 
-const ServerStatusBadge = styled.div<{ $status: 'online' | 'offline' | 'starting' | 'stopping' | 'error' }>`
+const ServerStatusBadge = styled.div<{ $status: string }>`
   position: absolute;
   top: ${theme.space.sm};
   right: ${theme.space.sm};
@@ -55,10 +57,10 @@ const ServerStatusBadge = styled.div<{ $status: 'online' | 'offline' | 'starting
   font-weight: 500;
   color: white;
   background-color: ${props => 
-    props.$status === 'online' ? theme.colors.success :
-    props.$status === 'starting' ? theme.colors.accent :
-    props.$status === 'stopping' ? theme.colors.accent :
-    props.$status === 'error' ? theme.colors.error :
+    props.$status === 'Allocated' ? theme.colors.success :
+    props.$status === 'Ready' ? theme.colors.accent :
+    props.$status === 'Scheduled' ? theme.colors.accent :
+    props.$status === 'Unhealthy' ? theme.colors.error :
     '#6B7280'};
 `;
 
@@ -189,90 +191,6 @@ const userGames: UserGameData[] = [
   },
 ];
 
-// 模拟服务器数据
-interface ServerData {
-  id: string;
-  name: string;
-  game: string;
-  gameId: string;
-  imageUrl: string;
-  status: 'online' | 'offline' | 'starting' | 'stopping' | 'error';
-  players: {
-    current: number;
-    max: number;
-  };
-  uptime: string;
-  cpu: number;
-  memory: number;
-  plan: string;
-  ip: string;
-  port: number;
-  createdAt: string;
-  version: string;
-}
-
-const servers: ServerData[] = [
-  {
-    id: 'srv-001',
-    name: '我的世界生存服务器',
-    game: 'Minecraft',
-    gameId: '1',
-    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
-    status: 'online',
-    players: {
-      current: 5,
-      max: 20
-    },
-    uptime: '3天12小时',
-    cpu: 35,
-    memory: 60,
-    plan: '标准版',
-    ip: '123.45.67.89',
-    port: 25565,
-    createdAt: '2023-05-15',
-    version: 'Paper 1.20.4',
-  },
-  {
-    id: 'srv-002',
-    name: '创造模式服务器',
-    game: 'Minecraft',
-    gameId: '1',
-    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
-    status: 'offline',
-    players: {
-      current: 0,
-      max: 10
-    },
-    uptime: '0',
-    cpu: 0,
-    memory: 0,
-    plan: '基础版',
-    ip: '123.45.67.90',
-    port: 25565,
-    createdAt: '2023-06-20',
-    version: 'Vanilla 1.20.4',
-  },
-  {
-    id: 'srv-003',
-    name: 'Terraria多人服务器',
-    game: 'Terraria',
-    gameId: '2',
-    imageUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/105600/header.jpg',
-    status: 'starting',
-    players: {
-      current: 0,
-      max: 8
-    },
-    uptime: '0',
-    cpu: 15,
-    memory: 30,
-    plan: '基础版',
-    ip: '123.45.67.91',
-    port: 7777,
-    createdAt: '2023-07-05',
-    version: '1.4.4.9',
-  },
-];
 
 // 模拟部署中的服务器数据
 interface DeployingServerData {
@@ -348,10 +266,85 @@ const billingData: BillingData[] = [
 
 const DashboardPage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isUnmountedRef = useRef(false);
+  const [now, setNow] = useState(Date.now());
   
-  const handleServerAction = (action: string, serverId: string) => {
-    console.log(`执行操作: ${action}，服务器ID: ${serverId}`);
-    // 这里可以实现相应的操作逻辑
+  const {
+    servers,
+    error,
+    allocatedGameServers,
+    fetchServers,
+    startServer,
+    stopServer,
+    destroyServer,
+    clearError
+  } = useServerStore();
+  
+  // useEffect(() => {
+  //   fetchServers('Allocated');
+  // }, [fetchServers]);
+
+  const fetchData = async () => {
+    if (isUnmountedRef.current) return;
+    fetchServers('Allocated');
+    setNow(Date.now());
+    timeoutRef.current = setTimeout(fetchData, 60000);
+  };
+
+  useEffect(() => {
+    isUnmountedRef.current = false;
+    fetchData(); // 初次调用
+    return () => {
+      isUnmountedRef.current = true;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        console.log('清除 timeout');
+      }
+    };
+  }, []);
+  
+  useEffect(() => {
+    if (error) {
+      message.error(error);
+      clearError();
+    }
+  }, [error, clearError]);
+  
+  const handleServerAction = async (action: string, serverId: string) => {
+    try {
+      switch (action) {
+        case 'start':
+          await startServer(serverId);
+          message.success('服务器启动成功');
+          break;
+        case 'stop':
+          await stopServer(serverId);
+          message.success('服务器停止成功');
+          break;
+        case 'destroy':
+          console.log('准备弹出确认框');
+          setTimeout(() => {
+            Modal.confirm({
+              title: '确认删除服务器',
+              content: '删除后数据将无法恢复，确定要删除这个服务器吗？',
+              icon: <ExclamationCircleOutlined />,
+              okText: '确认删除',
+              okType: 'danger',
+              cancelText: '取消',
+              onOk: async () => {
+                await destroyServer(serverId);
+                message.success('服务器删除成功');
+              },
+            });
+          }, 500);
+          break;
+        default:
+          console.log(`执行操作: ${action}，服务器ID: ${serverId}`);
+      }
+    } catch (err) {
+      message.error(`操作失败: ${err}`);
+    }
   };
   
   const handleCancelDeployment = (deploymentId: string) => {
@@ -359,26 +352,37 @@ const DashboardPage: React.FC = () => {
     // 这里可以实现取消部署的逻辑
   };
   
-  const filteredServers = servers.filter(server => 
-    server.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    server.game.toLowerCase().includes(searchText.toLowerCase())
-  );
+  // const filteredServers = allocatedGameServers.filter(server => 
+  //   server.name.toLowerCase().includes(searchText.toLowerCase()) ||
+  //   server.gameName.toLowerCase().includes(searchText.toLowerCase())
+  // );
+
+
+  function formatDuration(start: string, end?: string): string {
+    const startTime = new Date(start).getTime();
+    const endTime = end ? new Date(end).getTime() : now;
+
+    let diff = Math.max(0, endTime - startTime); // 毫秒差
+
+    const totalMinutes = Math.floor(diff / (1000 * 60));
+    const days = Math.floor(totalMinutes / (60 * 24));
+    const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+    const minutes = totalMinutes % 60;
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${pad(days)}天:${pad(hours)}时:${pad(minutes)}分`;
+  }
   
-  const serverColumns: ColumnsType<ServerData> = [
+  const serverColumns: ColumnsType<GameServerInfo> = [
     {
       title: '服务器',
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <img 
-            src={record.imageUrl} 
-            alt={record.game} 
-            style={{ width: 40, height: 25, objectFit: 'cover', marginRight: 10, borderRadius: 4 }} 
-          />
           <div>
             <div>{text}</div>
-            <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>{record.game}</div>
+            <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>{record.name}</div>
           </div>
         </div>
       ),
@@ -392,25 +396,21 @@ const DashboardPage: React.FC = () => {
         let text = '';
         
         switch(status) {
-          case 'online':
+          case 'Allocated':
             color = 'success';
-            text = '在线';
+            text = '运行中';
             break;
-          case 'offline':
+          case 'Ready':
             color = 'default';
-            text = '离线';
+            text = '已准备';
             break;
-          case 'starting':
+          case 'Scheduled':
             color = 'processing';
-            text = '启动中';
+            text = '部署中';
             break;
-          case 'stopping':
-            color = 'warning';
-            text = '停止中';
-            break;
-          case 'error':
+          case 'Unhealthy':
             color = 'error';
-            text = '错误';
+            text = '不健康';
             break;
           default:
             color = 'default';
@@ -421,10 +421,10 @@ const DashboardPage: React.FC = () => {
       },
     },
     {
-      title: '玩家',
-      dataIndex: 'players',
-      key: 'players',
-      render: (players) => `${players.current}/${players.max}`,
+      title: '最大玩家数',
+      dataIndex: ['config', 'maxPlayers'],
+      key: 'maxPlayers',
+      render: (maxPlayers) => maxPlayers || '-',
     },
     {
       title: '版本',
@@ -435,6 +435,14 @@ const DashboardPage: React.FC = () => {
       title: '配置',
       dataIndex: 'plan',
       key: 'plan',
+    },
+    {
+      title: '运行时间',
+      dataIndex: 'startTime',
+      key: 'startTime',
+      render(startTime) {
+        return formatDuration(startTime);
+      },
     },
     {
       title: 'IP地址',
@@ -453,25 +461,25 @@ const DashboardPage: React.FC = () => {
                 key: '1',
                 label: '查看控制台',
                 icon: <EyeOutlined />,
-                onClick: () => handleServerAction('console', record.id),
+                onClick: () => handleServerAction('console', record.name),
               },
               {
                 key: '2',
                 label: '编辑设置',
                 icon: <EditOutlined />,
-                onClick: () => handleServerAction('edit', record.id),
+                onClick: () => handleServerAction('edit', record.name),
               },
               {
                 key: '3',
                 label: '备份服务器',
                 icon: <CloudUploadOutlined />,
-                onClick: () => handleServerAction('backup', record.id),
+                onClick: () => handleServerAction('backup', record.name),
               },
               {
                 key: '4',
                 label: '恢复备份',
                 icon: <CloudDownloadOutlined />,
-                onClick: () => handleServerAction('restore', record.id),
+                onClick: () => handleServerAction('restore', record.name),
               },
               {
                 type: 'divider',
@@ -481,7 +489,7 @@ const DashboardPage: React.FC = () => {
                 label: '删除服务器',
                 icon: <DeleteOutlined />,
                 danger: true,
-                onClick: () => handleServerAction('delete', record.id),
+                onClick: () => handleServerAction('destroy', record.name),
               },
             ]}
           />
@@ -489,31 +497,31 @@ const DashboardPage: React.FC = () => {
         
         return (
           <Space size="middle">
-            {record.status === 'online' ? (
+            {record.status === 'Allocated' ? (
               <Button 
                 icon={<PauseCircleOutlined />} 
-                onClick={() => handleServerAction('stop', record.id)}
+                onClick={() => handleServerAction('stop', record.name)}
               >
                 停止
               </Button>
-            ) : record.status === 'offline' ? (
+            ) : record.status === 'Ready' ? (
               <Button 
                 type="primary" 
                 icon={<PlayCircleOutlined />} 
-                onClick={() => handleServerAction('start', record.id)}
+                onClick={() => handleServerAction('start', record.name)}
               >
                 启动
               </Button>
-            ) : record.status === 'error' ? (
+            ) : record.status === 'Unhealthy' ? (
               <Button 
                 icon={<ReloadOutlined />} 
-                onClick={() => handleServerAction('restart', record.id)}
+                onClick={() => handleServerAction('restart', record.name)}
               >
                 重启
               </Button>
             ) : (
               <Button disabled>
-                {record.status === 'starting' ? '启动中' : '停止中'}
+                {record.status === 'Scheduled' ? '部署中' : '停止中'}
               </Button>
             )}
             
@@ -680,7 +688,7 @@ const DashboardPage: React.FC = () => {
                 <Card>
                   <Statistic 
                     title="在线服务器" 
-                    value={servers.filter(s => s.status === 'online').length} 
+                    value={allocatedGameServers.filter(s => s.status === 'Allocated').length} 
                     valueStyle={{ color: theme.colors.success }}
                   />
                 </Card>
@@ -689,7 +697,7 @@ const DashboardPage: React.FC = () => {
                 <Card>
                   <Statistic 
                     title="在线玩家" 
-                    value={servers.reduce((acc, server) => acc + server.players.current, 0)} 
+                    value={servers.reduce((acc, server) => acc + (server.config.maxPlayers || 0), 0)} 
                   />
                 </Card>
               </Col>
@@ -716,10 +724,10 @@ const DashboardPage: React.FC = () => {
             </Button>
           </TableActions>
           
-          {filteredServers.length > 0 ? (
+          {allocatedGameServers.length > 0 ? (
             <Table 
               columns={serverColumns} 
-              dataSource={filteredServers.map(server => ({ ...server, key: server.id }))} 
+              dataSource={allocatedGameServers.map(server => ({ ...server, key: server.name }))} 
               pagination={false}
             />
           ) : (
@@ -764,53 +772,53 @@ const DashboardPage: React.FC = () => {
             </Button>
           </TableActions>
           
-          {filteredServers.length > 0 ? (
+          {allocatedGameServers.length > 0 ? (
             <Row gutter={[16, 16]}>
-              {filteredServers.map(server => (
-                <Col xs={24} sm={12} md={8} lg={6} key={server.id}>
+              {allocatedGameServers.map(server => (
+                <Col xs={24} sm={12} md={8} lg={6} key={server.name}>
                   <ServerCard hoverable>
-                    <ServerImage $imageUrl={server.imageUrl}>
+                    <ServerImage $imageUrl="https://via.placeholder.com/300x140">
                       <ServerStatusBadge $status={server.status}>
-                        {server.status === 'online' ? '在线' : 
-                         server.status === 'offline' ? '离线' : 
-                         server.status === 'starting' ? '启动中' : 
-                         server.status === 'stopping' ? '停止中' : '错误'}
+                        {server.status === 'Allocated' ? '运行中' : 
+                         server.status === 'Ready' ? '已停止' : 
+                         server.status === 'Scheduled' ? '部署中' : 
+                         server.status === 'Unhealthy' ? '错误' : '未知'}
                       </ServerStatusBadge>
                     </ServerImage>
                     <ServerContent>
                       <ServerName>{server.name}</ServerName>
                       <ServerMeta>
-                        <span>{server.game}</span>
-                        <span>{server.version}</span>
+                        <span>{server.name}</span>
+                        <span>版本信息</span>
                       </ServerMeta>
-                      <div>
-                        <Tag color="blue">{server.plan}</Tag>
-                        <Tag>{`${server.players.current}/${server.players.max} 玩家`}</Tag>
-                      </div>
+                      {/* <div>
+                        <Tag color="blue">{server.config.plan}</Tag>
+                        <Tag>{`最大 ${server.config.maxPlayers} 玩家`}</Tag>
+                      </div> */}
                       <ServerActions>
-                        {server.status === 'online' ? (
+                        {server.status === 'Allocated' ? (
                           <Button 
                             icon={<PauseCircleOutlined />} 
-                            onClick={() => handleServerAction('stop', server.id)}
+                            onClick={() => handleServerAction('stop', server.name)}
                           >
                             停止
                           </Button>
-                        ) : server.status === 'offline' ? (
+                        ) : server.status === 'Ready' ? (
                           <Button 
                             type="primary" 
                             icon={<PlayCircleOutlined />} 
-                            onClick={() => handleServerAction('start', server.id)}
+                            onClick={() => handleServerAction('start', server.name)}
                           >
                             启动
                           </Button>
                         ) : (
                           <Button disabled>
-                            {server.status === 'starting' ? '启动中' : 
-                             server.status === 'stopping' ? '停止中' : '重启'}
+                            {server.status === 'Scheduled' ? '部署中' : 
+                             server.status === 'Unhealthy' ? '错误' : '重启'}
                           </Button>
                         )}
                         <Button icon={<SettingOutlined />}>
-                          <Link to={`/dashboard/server/${server.id}`}>管理</Link>
+                          <Link to={`/dashboard/server/${server.name}`}>管理</Link>
                         </Button>
                       </ServerActions>
                     </ServerContent>
@@ -819,10 +827,10 @@ const DashboardPage: React.FC = () => {
               ))}
               
               {deployingServers.map(server => (
-                <Col xs={24} sm={12} md={8} lg={6} key={server.id}>
+                <Col xs={24} sm={12} md={8} lg={6} key={server.name}>
                   <ServerCard hoverable>
                     <ServerImage $imageUrl={server.imageUrl}>
-                      <ServerStatusBadge $status="starting">
+                      <ServerStatusBadge $status="Scheduled">
                         部署中
                       </ServerStatusBadge>
                     </ServerImage>

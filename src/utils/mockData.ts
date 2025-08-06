@@ -21,6 +21,7 @@ export interface Game {
   };
   features: string[];
   deploymentOptions: DeploymentOption[];
+  gameVersions: GameVersion[];
 }
 
 export interface SystemRequirement {
@@ -66,6 +67,12 @@ export interface ServerInstance {
   ipAddress: string;
   region: string;
   uptime: number; // 以小时为单位
+}
+
+export interface GameVersion {
+  value: string;
+  label: string;
+  name: string;
 }
 
 // 模拟游戏数据
@@ -154,6 +161,12 @@ export const games: Game[] = [
           bandwidth: '1Gbps'
         }
       }
+    ],
+    gameVersions: [
+      { value: '1.21.7', label: 'xxxxxx 1.21.7', name: 'xxxxxx-1.21.7' },
+      { value: '1.21.6', label: 'xxxxxx 1.21.6', name: 'xxxxxx-1.21.6' },
+      { value: '1.21.5', label: 'xxxxxx 1.21.5', name: 'xxxxxx-1.21.5' },
+      { value: '1.21.4', label: 'xxxxxx 1.21.4', name: 'xxxxxx-1.21.4' },
     ]
   },
   {
@@ -238,6 +251,12 @@ export const games: Game[] = [
           bandwidth: '1Gbps'
         }
       }
+    ],
+    gameVersions: [
+      { value: '1.21.7', label: 'xxxxxx 1.21.7', name: 'xxxxxx-1.21.7' },
+      { value: '1.21.6', label: 'xxxxxx 1.21.6', name: 'xxxxxx-1.21.6' },
+      { value: '1.21.5', label: 'xxxxxx 1.21.5', name: 'xxxxxx-1.21.5' },
+      { value: '1.21.4', label: 'xxxxxx 1.21.4', name: 'xxxxxx-1.21.4' },
     ]
   },
   {
@@ -324,6 +343,12 @@ export const games: Game[] = [
           bandwidth: '1Gbps'
         }
       }
+    ],
+    gameVersions: [
+      { value: '1.21.7', label: 'xxxxxx 1.21.7', name: 'xxxxxx-1.21.7' },
+      { value: '1.21.6', label: 'xxxxxx 1.21.6', name: 'xxxxxx-1.21.6' },
+      { value: '1.21.5', label: 'xxxxxx 1.21.5', name: 'xxxxxx-1.21.5' },
+      { value: '1.21.4', label: 'xxxxxx 1.21.4', name: 'xxxxxx-1.21.4' },
     ]
   },
   {
@@ -408,6 +433,12 @@ export const games: Game[] = [
           bandwidth: '100Mbps'
         }
       }
+    ],
+    gameVersions: [
+      { value: '1.21.7', label: 'xxxxxx 1.21.7', name: 'xxxxxx-1.21.7' },
+      { value: '1.21.6', label: 'xxxxxx 1.21.6', name: 'xxxxxx-1.21.6' },
+      { value: '1.21.5', label: 'xxxxxx 1.21.5', name: 'xxxxxx-1.21.5' },
+      { value: '1.21.4', label: 'xxxxxx 1.21.4', name: 'xxxxxx-1.21.4' },
     ]
   },
   {
@@ -494,6 +525,12 @@ export const games: Game[] = [
           bandwidth: '50Mbps'
         }
       }
+    ],
+    gameVersions: [
+      { value: '1.21.7', label: 'xxxxxx 1.21.7', name: 'xxxxxx-1.21.7' },
+      { value: '1.21.6', label: 'xxxxxx 1.21.6', name: 'xxxxxx-1.21.6' },
+      { value: '1.21.5', label: 'xxxxxx 1.21.5', name: 'xxxxxx-1.21.5' },
+      { value: '1.21.4', label: 'xxxxxx 1.21.4', name: 'xxxxxx-1.21.4' },
     ]
   },
   {
@@ -578,6 +615,102 @@ export const games: Game[] = [
           bandwidth: '100Mbps'
         }
       }
+    ],
+    gameVersions: [
+      { value: '1.21.7', label: 'xxxxxx 1.21.7', name: 'xxxxxx-1.21.7' },
+      { value: '1.21.6', label: 'xxxxxx 1.21.6', name: 'xxxxxx-1.21.6' },
+      { value: '1.21.5', label: 'xxxxxx 1.21.5', name: 'xxxxxx-1.21.5' },
+      { value: '1.21.4', label: 'xxxxxx 1.21.4', name: 'xxxxxx-1.21.4' },
+    ]
+  },
+  {
+    id: 'game-007',
+    title: 'Minecraft',
+    description: 'Minecraft是一款沙盒游戏，玩家可以在游戏中构建、破坏和互动。游戏开始时，玩家只有最基本的装备，需要收集资源、制作工具、建造庇护所、寻找食物和水源，同时应对野生动物、恶劣天气和其他威胁。游戏采用程序生成的世界，每次游戏都会有不同的地形和资源分布，提供无尽的探索可能。',
+    shortDescription: '探索无限世界，建造从简单的房子到宏伟的城堡的一切事物。',
+    coverImage: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
+    screenshots: [
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1574&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1475066392170-59d55d96fe51?q=80&w=1374&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?q=80&w=1470&auto=format&fit=crop'
+    ],
+    price: 129,
+    rating: 4.4,
+    tags: ['沙盒', '冒险', '多人'],
+    releaseDate: '2023-01-10',
+    developer: '生存工作室',
+    publisher: '冒险游戏',
+    systemRequirements: {
+      minimum: {
+        os: 'Windows 10 64位',
+        processor: 'Intel Core i3-2100 / AMD Ryzen 3 1200',
+        memory: '4 GB RAM',
+        graphics: 'NVIDIA GeForce GTX 650 / AMD Radeon HD 7770',
+        storage: '15 GB 可用空间',
+        network: '宽带互联网连接'
+      },
+      recommended: {
+        os: 'Windows 10 64位',
+        processor: 'Intel Core i5-4460 / AMD Ryzen 5 1400',
+        memory: '8 GB RAM',
+        graphics: 'NVIDIA GeForce GTX 970 / AMD Radeon R9 290',
+        storage: '15 GB SSD',
+        network: '宽带互联网连接'
+      }
+    },
+    features: [
+      '开放世界探索',
+      '资源收集与制作',
+      '建造系统',
+      '动态天气',
+      '野生动物',
+      '多人合作模式',
+      '程序生成的世界'
+    ],
+    deploymentOptions: [
+      {
+        id: 'deploy-017',
+        name: '标准版',
+        description: '适合小型服务器或个人游戏，最多支持10名玩家同时在线',
+        basePrice: 19.99,
+        specs: {
+          cpu: '2核',
+          memory: '4GB',
+          storage: '30GB SSD',
+          bandwidth: '5Mbps'
+        }
+      },
+      {
+        id: 'deploy-018',
+        name: '高级版',
+        description: '适合中型服务器，最多支持30名玩家同时在线，提供更好的游戏体验',
+        basePrice: 39.99,
+        specs: {
+          cpu: '4核',
+          memory: '8GB',
+          storage: '60GB SSD',
+          bandwidth: '20Mbps'
+        }
+      },
+      {
+        id: 'deploy-019',
+        name: '专业版',
+        description: '适合大型服务器，最多支持100名玩家同时在线，提供最佳游戏体验',
+        basePrice: 79.99,
+        specs: {
+          cpu: '8核',
+          memory: '16GB',
+          storage: '120GB SSD',
+          bandwidth: '100Mbps'
+        }
+      }
+    ],
+    gameVersions: [
+      { value: '1.21.7', label: 'Vanilla 1.21.7', name: 'minecraft-java-1.21.7' },
+      { value: '1.21.6', label: 'Vanilla 1.21.6', name: 'minecraft-java-1.21.6' },
+      { value: '1.21.5', label: 'Vanilla 1.21.5', name: 'minecraft-java-1.21.5' },
+      { value: '1.21.4', label: 'Vanilla 1.21.4', name: 'minecraft-java-1.21.4' },
     ]
   }
 ];

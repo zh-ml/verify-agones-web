@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
-import { Steps, Button, Form, Select, InputNumber, Radio, Card, Row, Col, Divider, Alert, Spin, Result, Input } from 'antd';
+import { Steps, Button, Form, Select, InputNumber, Radio, Card, Row, Col, Divider, Alert, Spin, Result, Input, message } from 'antd';
 import CustomDeployment, { type DeploymentConfig } from './CustomDeployment';
 import { RocketOutlined, SettingOutlined, CreditCardOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { useServerStore, type DeploymentConfig as ServerDeploymentConfig } from '../../stores/serverStore';
+import { games as mockGames } from '../../utils/mockData';
 
 const { TextArea } = Input;
 
@@ -79,20 +81,6 @@ const SuccessContainer = styled.div`
   padding: ${theme.space.xl} 0;
 `;
 
-import { games as mockGames } from '../../utils/mockData';
-
-// 模拟游戏版本数据
-const gameVersions = [
-  { value: 'vanilla-1.20.4', label: 'Vanilla 1.20.4' },
-  { value: 'vanilla-1.19.4', label: 'Vanilla 1.19.4' },
-  { value: 'vanilla-1.18.2', label: 'Vanilla 1.18.2' },
-  { value: 'paper-1.20.4', label: 'Paper 1.20.4' },
-  { value: 'paper-1.19.4', label: 'Paper 1.19.4' },
-  { value: 'spigot-1.20.4', label: 'Spigot 1.20.4' },
-  { value: 'forge-1.20.1', label: 'Forge 1.20.1' },
-  { value: 'fabric-1.20.1', label: 'Fabric 1.20.1' },
-];
-
 const DeploymentPage: React.FC = () => {
   // 使用id参数来获取游戏信息
   const { id } = useParams<{ id: string }>();
@@ -101,11 +89,16 @@ const DeploymentPage: React.FC = () => {
 
   const [form] = Form.useForm();
   
+  // 使用 Zustand store
+  const { deployServer, clearError } = useServerStore();
+  
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [_deploymentSuccess, setDeploymentSuccess] = useState(false);
-  const [deploymentId, setDeploymentId] = useState('');
   const [deploymentStatus, setDeploymentStatus] = useState(''); // 部署状态信息
+  const [gameVersion, setGameVersion] = useState({ version: '1.21.7', label: 'Vanilla 1.21.7', name: 'minecraft-java-1.21.7' });
+  const [deploymentGS, setDeploymentGS] = useState('');
+
 
   // 根据ID获取游戏数据
   const gameData = mockGames.find(game => game.id === id) || mockGames[0];
@@ -113,10 +106,7 @@ const DeploymentPage: React.FC = () => {
   // 为游戏添加版本信息
   const gameWithOptions = {
     ...gameData,
-    versions: gameVersions,
   };
-
-
 
   // 获取URL中的plan参数和custom参数
   const planIndex = searchParams.get('plan');
@@ -144,7 +134,8 @@ const DeploymentPage: React.FC = () => {
   // 设置默认值
   useEffect(() => {
     const defaultValues: any = {
-      version: gameWithOptions.versions[0].value,
+      version: gameWithOptions.gameVersions[0].value,
+      deployGSName: gameWithOptions.gameVersions[0].name,
       serverName: `${gameWithOptions.title} 服务器`,
       maxPlayers: 10,
       gameMode: 'survival',
@@ -159,54 +150,81 @@ const DeploymentPage: React.FC = () => {
     }
 
     form.setFieldsValue(defaultValues);
-  }, [form, gameWithOptions.versions, gameWithOptions.title, planIndex]);
+  }, [form, gameWithOptions.gameVersions, gameWithOptions.title, planIndex]);
 
-  const handleNext = () => {
+  function generateSixDigitNumber(): number {
+    return Math.floor(100000 + Math.random() * 900000);
+  }
+
+  const handleNext = async () => {
     if (currentStep === 0) {
       const fieldsToValidate = ['version'];
       if (configMode === 'preset') {
         fieldsToValidate.push('plan');
       }
-      form.validateFields(fieldsToValidate).then(() => {
+      try {
+        await form.validateFields(fieldsToValidate);
         setCurrentStep(currentStep + 1);
-      }).catch((errorInfo) => {
+      } catch (errorInfo) {
         console.log('表单验证失败:', errorInfo);
-      });
+      }
     } else if (currentStep === 1) {
-      form.validateFields(['serverName', 'maxPlayers']).then(() => {
+      try {
+        await form.validateFields(['serverName', 'maxPlayers']);
         setCurrentStep(currentStep + 1);
-      }).catch((errorInfo) => {
+      } catch (errorInfo) {
         console.log('表单验证失败:', errorInfo);
-      });
+      }
     } else if (currentStep === 2) {
-      // 确认支付步骤
+      // 确认部署步骤
       setLoading(true);
       setDeploymentStatus('正在处理您的部署请求...');
-
-      // 模拟部署过程的多个阶段
-      setTimeout(() => {
-        setDeploymentStatus('正在分配服务器资源...');
-      }, 1000);
-
-      setTimeout(() => {
-        setDeploymentStatus('正在安装游戏服务端...');
-      }, 3000);
-
-      setTimeout(() => {
-        setDeploymentStatus('正在配置服务器参数...');
-      }, 5000);
-
-      setTimeout(() => {
-        setDeploymentStatus('正在启动游戏服务器...');
-      }, 7000);
-
-      setTimeout(() => {
+      
+      try {
+        // 清除之前的错误
+        clearError();
+        
+        // 准备部署配置
+        const formValues = form.getFieldsValue();
+        const deploymentConfig: ServerDeploymentConfig = {
+          gameId: id || '',
+          serverName: formValues.serverName,
+          plan: configMode === 'preset' ? formValues.plan : -1, // -1 表示自定义配置
+          maxPlayers: formValues.maxPlayers,
+          serverDescription: formValues.serverDescription,
+          version: formValues.version,
+          gameMode: formValues.gameMode,
+          difficulty: formValues.difficulty,
+          customConfig: configMode === 'custom' && customConfig ? {
+            cpu: customConfig.cpu,
+            memory: customConfig.memory,
+            storage: customConfig.storage,
+            bandwidth: customConfig.bandwidth,
+            backups: customConfig.backups,
+            ddosProtection: customConfig.ddosProtection,
+            managedService: customConfig.managedService,
+          } : undefined,
+        };
+        
+        setDeploymentStatus('正在部署服务器...');
+        console.log(deploymentConfig)
+        // 调用 API 部署服务器
+        const deployLabel = gameVersion.label.replace(' ', '-') + '-' + generateSixDigitNumber();
+        await deployServer(gameVersion.name, gameVersion.version, '1', '1', deployLabel);
+        setDeploymentGS(deployLabel)
         setLoading(false);
         setDeploymentSuccess(true);
-        setDeploymentId(`MC-${Math.floor(Math.random() * 10000)}`); // 生成随机ID
         setDeploymentStatus('');
         setCurrentStep(currentStep + 1);
-      }, 9000);
+        
+        message.success('服务器部署成功！');
+      } catch (error) {
+        setLoading(false);
+        setDeploymentStatus('');
+        const errorMessage = error instanceof Error ? error.message : '部署失败，请重试';
+        message.error(errorMessage);
+        console.error('部署失败:', error);
+      }
     }
   };
 
@@ -268,8 +286,11 @@ const DeploymentPage: React.FC = () => {
       content: (
         <FormContainer>
           <Form.Item name="version" label="游戏版本" rules={[{ required: true, message: '请选择游戏版本' }]}>
-            <Select placeholder="选择游戏版本">
-              {gameWithOptions.versions.map(version => (
+            <Select placeholder="选择游戏版本" onChange={(value) => {
+              const selectedVersion = gameWithOptions.gameVersions.filter(version => version.value === value)[0];
+              setGameVersion({ 'version': selectedVersion.value, 'label': selectedVersion.label, 'name': selectedVersion.name })
+            }}>
+              {gameWithOptions.gameVersions.map(version => (
                 <Select.Option key={version.value} value={version.value}>
                   {version.label}
                 </Select.Option>
@@ -378,7 +399,7 @@ const DeploymentPage: React.FC = () => {
           )}
           <Card title="部署信息摘要">
             <p><strong>游戏：</strong> {gameWithOptions.title}</p>
-            <p><strong>版本：</strong> {form.getFieldValue('version') ? gameWithOptions.versions.find(v => v.value === form.getFieldValue('version'))?.label : '未选择'}</p>
+            <p><strong>版本：</strong> {form.getFieldValue('version') ? gameWithOptions.gameVersions.find(v => v.value === form.getFieldValue('version'))?.label : '未选择'}</p>
             <p><strong>服务器名称：</strong> {form.getFieldValue('serverName') || '未设置'}</p>
             <p><strong>最大玩家数：</strong> {form.getFieldValue('maxPlayers') || '未设置'}</p>
             <p><strong>游戏模式：</strong> {form.getFieldValue('gameMode') === 'survival' ? '生存模式' : 
@@ -421,7 +442,7 @@ const DeploymentPage: React.FC = () => {
           <Result
             status="success"
             title="服务器部署成功！"
-            subTitle={`服务器ID: ${deploymentId}`}
+            subTitle={`服务器ID: ${deploymentGS}`}
             extra={[
               <Button type="primary" key="dashboard" onClick={handleFinish}>
                 前往控制台

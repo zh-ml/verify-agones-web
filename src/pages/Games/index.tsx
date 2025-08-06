@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Row, Col, Select, Pagination, Empty, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import GameCard from '../../components/GameCard';
-import { games } from '../../utils/mockData';
-import type { GameData } from '../../components/GameCard';
+import { games as mockGames } from '../../utils/mockData';
+import { convertToGameData } from '../../utils/common';
 import {
   GamesContainer,
   PageHeader,
@@ -18,21 +18,6 @@ import {
 
 const { Option } = Select;
 
-// 将mockData中的游戏数据转换为GameData类型
-const convertToGameData = (games: any[]): GameData[] => {
-  return games.map(game => ({
-    id: game.id,
-    title: game.title,
-    description: game.shortDescription || game.description.substring(0, 100) + '...',
-    imageUrl: game.coverImage,
-    price: game.price,
-    discountPrice: game.discountPrice,
-    rating: game.rating,
-    tags: game.tags,
-    releaseDate: game.releaseDate
-  }));
-};
-
 const GamesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
@@ -40,11 +25,9 @@ const GamesPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading] = useState(false);
   const pageSize = 12;
-  
 
-  
   // 转换游戏数据
-  const gameData = convertToGameData(games);
+  const gameData = convertToGameData(mockGames);
   
   // 过滤和排序游戏
   const filteredGames = gameData.filter(game => {

@@ -6,6 +6,8 @@ import { RocketOutlined, CloudServerOutlined, SafetyCertificateOutlined, Custome
 import { Link } from 'react-router-dom';
 import GameCard from '../../components/GameCard';
 import type { GameData } from '../../components/GameCard';
+import { games as mockGames } from '../../utils/mockData';
+import { convertToGameData } from '../../utils/common';
 
 const HeroSection = styled.section`
   background: linear-gradient(135deg, ${theme.colors.primary} 0%, #2D3A8C 100%);
@@ -159,7 +161,15 @@ const CarouselDescription = styled.p`
   opacity: 0.9;
 `;
 
-const ViewAllLink = styled(Link)`
+// const ViewAllLink = styled(Link)`
+//   display: block;
+//   text-align: center;
+//   margin-top: ${theme.space.xl};
+//   font-weight: 500;
+//   font-size: ${theme.fontSizes.lg};
+// `;
+
+const BaseViewAll = styled.div`
   display: block;
   text-align: center;
   margin-top: ${theme.space.xl};
@@ -167,51 +177,16 @@ const ViewAllLink = styled(Link)`
   font-size: ${theme.fontSizes.lg};
 `;
 
-// 模拟数据
-const featuredGames: GameData[] = [
-  {
-    id: '1',
-    title: 'Minecraft',
-    description: '一款关于方块与冒险的游戏，你可以在游戏中探索无限世界，建造从简单的房子到宏伟的城堡的一切事物。',
-    imageUrl: 'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Homepage_Discover-our-games_MC-Vanilla-KeyArt_864x864.jpg',
-    price: 199,
-    discountPrice: 159,
-    rating: 4.8,
-    tags: ['沙盒', '冒险', '多人'],
-    releaseDate: '2011-11-18'
-  },
-  {
-    id: '2',
-    title: 'Counter-Strike 2',
-    description: '《反恐精英2》是一款第一人称射击游戏，玩家分为恐怖分子与反恐精英两个阵营进行对抗。',
-    imageUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg',
-    price: 99,
-    rating: 4.7,
-    tags: ['射击', '竞技', '团队'],
-    releaseDate: '2023-09-27'
-  },
-  {
-    id: '3',
-    title: 'Stardew Valley',
-    description: '继承你爷爷的旧农场，开始你的新生活。学习如何生活在土地上，种植庄稼，饲养动物，开始新的人际关系。',
-    imageUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/413150/header.jpg',
-    price: 80,
-    discountPrice: 48,
-    rating: 4.9,
-    tags: ['模拟', '角色扮演', '农场'],
-    releaseDate: '2016-02-26'
-  },
-  {
-    id: '4',
-    title: 'Terraria',
-    description: '挖掘、战斗、探索、建造！没有什么是不可能的在这个充满冒险的世界里。',
-    imageUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/105600/header.jpg',
-    price: 60,
-    rating: 4.7,
-    tags: ['沙盒', '冒险', '多人'],
-    releaseDate: '2011-05-16'
-  },
-];
+const ViewAllLink = ({ to, children, ...rest }: { to?: string, children: React.ReactNode } & React.HTMLAttributes<HTMLElement>) => {
+  if (to) {
+    return <StyledLink to={to} {...rest}>{children}</StyledLink>;
+  }
+  return <BaseViewAll as="div" {...rest}>{children}</BaseViewAll>;
+};
+
+const StyledLink = styled(Link)`
+  ${BaseViewAll}
+`;
 
 const newGames: GameData[] = [
   {
@@ -279,7 +254,7 @@ const carouselGames = [
 ];
 
 const HomePage: React.FC = () => {
-  
+  const gameData = convertToGameData(mockGames);
   return (
     <>
       <HeroSection>
@@ -322,7 +297,7 @@ const HomePage: React.FC = () => {
           
           <SectionTitle>热门游戏</SectionTitle>
           <Row gutter={[24, 24]}>
-            {featuredGames.map(game => (
+            {gameData.map(game => (
               <Col xs={24} sm={12} md={8} lg={6} key={game.id}>
                 <GameCard game={game} />
               </Col>
@@ -386,15 +361,15 @@ const HomePage: React.FC = () => {
       
       <Section>
         <Container>
-          <SectionTitle>新上线游戏</SectionTitle>
+          <SectionTitle>预上线游戏</SectionTitle>
           <Row gutter={[24, 24]}>
             {newGames.map(game => (
               <Col xs={24} sm={12} md={8} lg={6} key={game.id}>
-                <GameCard game={game} />
+                <GameCard game={game} isTouch={false} />
               </Col>
             ))}
           </Row>
-          <ViewAllLink to="/games/new">查看更多新游戏 &rarr;</ViewAllLink>
+          {/* <ViewAllLink>查看更多新游戏 &rarr;</ViewAllLink> */}
         </Container>
       </Section>
     </>
