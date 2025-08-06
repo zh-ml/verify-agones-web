@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import { Tabs, Card, Button, Statistic, Row, Col, Table, Badge, Space, Dropdown, Menu, Progress, Alert, Empty, message, Modal } from 'antd';
-import { PlayCircleOutlined, PauseCircleOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, DownOutlined, EyeOutlined, EditOutlined, CloudUploadOutlined, CloudDownloadOutlined, DownloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, PauseCircleOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, DownOutlined, EyeOutlined, EditOutlined, CloudUploadOutlined, CloudDownloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useServerStore } from '../../stores/serverStore';
@@ -269,7 +269,9 @@ const DashboardPage: React.FC = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isUnmountedRef = useRef(false);
   const [now, setNow] = useState(Date.now());
-  
+  const [deleteGSVisible, setDeleteGSVisible] = useState(false);
+  const [deleteGSId, setDeleteGSId] = useState('');
+
   const {
     servers,
     error,
@@ -324,20 +326,20 @@ const DashboardPage: React.FC = () => {
           break;
         case 'destroy':
           console.log('准备弹出确认框');
-          setTimeout(() => {
-            Modal.confirm({
-              title: '确认删除服务器',
-              content: '删除后数据将无法恢复，确定要删除这个服务器吗？',
-              icon: <ExclamationCircleOutlined />,
-              okText: '确认删除',
-              okType: 'danger',
-              cancelText: '取消',
-              onOk: async () => {
-                await destroyServer(serverId);
-                message.success('服务器删除成功');
-              },
-            });
-          }, 500);
+          setDeleteGSVisible(true);
+          setDeleteGSId(serverId);
+            // Modal.confirm({
+            //   title: '确认删除服务器',
+            //   content: '删除后数据将无法恢复，确定要删除这个服务器吗？',
+            //   icon: <ExclamationCircleOutlined />,
+            //   okText: '确认删除',
+            //   okType: 'danger',
+            //   cancelText: '取消',
+            //   onOk: async () => {
+            //     await destroyServer(serverId);
+            //     message.success('服务器删除成功');
+            //   },
+            // });
           break;
         default:
           console.log(`执行操作: ${action}，服务器ID: ${serverId}`);
@@ -536,65 +538,65 @@ const DashboardPage: React.FC = () => {
     },
   ];
   
-  const deployingColumns: ColumnsType<DeployingServerData> = [
-    {
-      title: '服务器',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text, record) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <img 
-            src={record.imageUrl} 
-            alt={record.game} 
-            style={{ width: 40, height: 25, objectFit: 'cover', marginRight: 10, borderRadius: 4 }} 
-          />
-          <div>
-            <div>{text}</div>
-            <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>{record.game}</div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        return status === 'deploying' ? 
-          <Badge status="processing" text="部署中" /> : 
-          <Badge status="error" text="部署失败" />;
-      },
-    },
-    {
-      title: '进度',
-      dataIndex: 'progress',
-      key: 'progress',
-      render: (progress) => <Progress percent={progress} size="small" />,
-    },
-    {
-      title: '配置',
-      dataIndex: 'plan',
-      key: 'plan',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (_, record) => (
-        <Button 
-          danger 
-          onClick={() => handleCancelDeployment(record.id)}
-          disabled={record.progress > 90}
-        >
-          取消部署
-        </Button>
-      ),
-    },
-  ];
+  // const deployingColumns: ColumnsType<DeployingServerData> = [
+  //   {
+  //     title: '服务器',
+  //     dataIndex: 'name',
+  //     key: 'name',
+  //     render: (text, record) => (
+  //       <div style={{ display: 'flex', alignItems: 'center' }}>
+  //         <img 
+  //           src={record.imageUrl} 
+  //           alt={record.game} 
+  //           style={{ width: 40, height: 25, objectFit: 'cover', marginRight: 10, borderRadius: 4 }} 
+  //         />
+  //         <div>
+  //           <div>{text}</div>
+  //           <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>{record.game}</div>
+  //         </div>
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: '状态',
+  //     dataIndex: 'status',
+  //     key: 'status',
+  //     render: (status) => {
+  //       return status === 'deploying' ? 
+  //         <Badge status="processing" text="部署中" /> : 
+  //         <Badge status="error" text="部署失败" />;
+  //     },
+  //   },
+  //   {
+  //     title: '进度',
+  //     dataIndex: 'progress',
+  //     key: 'progress',
+  //     render: (progress) => <Progress percent={progress} size="small" />,
+  //   },
+  //   {
+  //     title: '配置',
+  //     dataIndex: 'plan',
+  //     key: 'plan',
+  //   },
+  //   {
+  //     title: '创建时间',
+  //     dataIndex: 'createdAt',
+  //     key: 'createdAt',
+  //   },
+  //   {
+  //     title: '操作',
+  //     key: 'action',
+  //     render: (_, record) => (
+  //       <Button 
+  //         danger 
+  //         onClick={() => handleCancelDeployment(record.id)}
+  //         disabled={record.progress > 90}
+  //       >
+  //         取消部署
+  //       </Button>
+  //     ),
+  //   },
+  // ];
   
   const billingColumns: ColumnsType<BillingData> = [
     {
@@ -743,7 +745,7 @@ const DashboardPage: React.FC = () => {
             </EmptyStateContainer>
           )}
           
-          {deployingServers.length > 0 && (
+          {/* {deployingServers.length > 0 && (
             <>
               <h2 style={{ margin: '30px 0 20px' }}>部署中的服务器</h2>
               <Table 
@@ -752,7 +754,7 @@ const DashboardPage: React.FC = () => {
                 pagination={false}
               />
             </>
-          )}
+          )} */}
         </>
       ),
     },
@@ -949,6 +951,33 @@ const DashboardPage: React.FC = () => {
       </DashboardHeader>
       
       <Tabs defaultActiveKey="1" items={items} />
+      {/* 状态控制的测试 Modal */}
+      <Modal
+        title="确认删除服务器"
+        open={deleteGSVisible}
+        okText='确认删除'
+        okType='danger'
+        cancelText='取消'
+        onOk={async () => {
+          await destroyServer(deleteGSId);
+          setDeleteGSVisible(false);
+          setDeleteGSId('');
+          console.log(deleteGSId+' 服务器删除成功!');
+          message.success(deleteGSId+' 服务器删除成功!');
+        }}
+        onCancel={() => {
+          setDeleteGSVisible(false);
+          setDeleteGSId('');
+          console.log('State Modal cancelled');
+        }}
+        centered
+        // zIndex={1000}
+      >
+        <p>警告:</p>
+        <div style={{ marginBottom: '16px' }} />
+        <p>&nbsp;&nbsp;确定删除服务器：{deleteGSId}？</p>
+        <p>&nbsp;&nbsp;删除后将无法恢复，请谨慎操作。</p>
+      </Modal>
     </DashboardContainer>
   );
 };
