@@ -706,8 +706,8 @@ const DashboardPage: React.FC = () => {
               <Col xs={24} sm={12} md={6}>
                 <Card>
                   <Statistic 
-                    title="部署中" 
-                    value={deployingServers.length} 
+                    title="部署中"
+                    value={allocatedGameServers.filter(s => s.status === 'Scheduled').length}
                     valueStyle={{ color: theme.colors.primary }}
                   />
                 </Card>
